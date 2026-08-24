@@ -1,0 +1,12 @@
+# Dependencies & Logs
+node_modules/
+*.log
+Saved/
+
+# Vercel & Editor metadata
+.vercel/
+.DS_Store
+Thumbs.db
+
+# Temporary scratch & test artifacts
+scratch/

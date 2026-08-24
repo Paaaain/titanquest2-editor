@@ -1,0 +1,8 @@
+﻿Key,SourceString,DevComment
+"CharacterSettingsCollection_Name","Character",""
+"LootFilterPage_Name","Loot Filter",""
+"LootFilterPage_Description","Filters loot so only items matching the configured criteria are displayed in the world..",""
+"LootFilterPage_Navigation","Configure",""
+"MinimumLootRarity_Name","Minimum Loot Rarity",""
+"MinimumLootRarity_Description","Items below the chosen  rarity will be hidden in the world.\r\nNote: This is a very basic implementation of the Loot Filter.\r\nWe will add new features to create a more powerful Loot Filter in the future.",""
+"CharacterSettingsExplainer","This tab is character specific. All settings in here will save/load alongside your current character.",""

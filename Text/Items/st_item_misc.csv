@@ -1,0 +1,9 @@
+﻿Key,SourceString
+"potion_energy_nameMain","Energy Potion"
+"potion_health_nameMain","Health Potion"
+"potion_energy_nameAdjective",""
+"potion_health_nameAdjective",""
+"potion_health_flavortext","The first health-restoring potions were granted to humankind by Asklepios."
+"potion_energy_flavortext","A decoction from an ancient recipe, used to quickly restore energy."
+"potion_health_description","Gains Charges by dealing Damage."
+"potion_energy_description","Replenishes itself over time."

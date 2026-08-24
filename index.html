@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Titan Quest II – Character, Item &amp; Save Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=20260824_2120">
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo-badge">Ω</div>
+    <div>
+      <h1>Titan Quest <span>II</span> · Character &amp; Save Editor</h1>
+      <div class="h-sub">Unified Character View · Inventory &amp; Sockets · Attributes · Masteries</div>
+    </div>
+  </div>
+
+  <div class="hdr-actions">
+    <button class="btn profile-switcher" id="btn-profile-switch" style="display:none;" title="Click to switch between character profiles in your SaveGames folder">
+      <span>👤</span> <span id="current-profile-label">Character: Huy (Lv 36)</span> ▾
+    </button>
+    <button class="btn btn-reload-folder" id="btn-reload-last-folder" style="display:none;" title="Instantly reload saves from your previously selected folder"><span>🔄</span> Reload: <strong id="last-folder-name">Folder</strong></button>
+    <a href="Huy_SaveGames.zip" download="Huy_SaveGames.zip" class="btn" style="background: linear-gradient(135deg, #1e7e34, #28a745); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; padding: 5px 10px;" title="Download complete fixed Huy save files (.zip archive)"><span>📥</span> Tải Save Huy (.zip)</a>
+    <button class="btn folder-btn" id="btn-load-huy" title="Instantly load Huy (Level 36) from your SaveGames folder for testing"><span>⚡</span> Load Huy (SaveGames)</button>
+    <button class="btn folder-btn" id="btn-select-folder" title="Select a SaveGames folder (e.g. D:\TQ2Saves) for 1-click loading & direct overwriting">
+      <span>📂</span> Select Folder
+    </button>
+    <button class="btn ghost tiny" id="btn-select-files" title="Select .sav files directly (bypasses AppData blocks)">
+      <span>📄</span> Open .sav Files
+    </button>
+    <button class="btn btn-save-direct" id="btn-save-direct" disabled title="Directly overwrite modified save files to disk and auto-delete Saving.sav">
+      <span>⚡</span> Save &amp; Overwrite
+    </button>
+    <button class="btn ghost tiny" id="save" disabled title="Export all modified save files as a single .zip archive (extract to SaveGames)">
+      <span>📦</span> Export (.zip)
+    </button>
+    <span id="dirty"></span>
+    <button class="btn ghost tiny" id="btn-help" title="View save file guide and checksum instructions">❓ Guide</button>
+  </div>
+</header>
+
+<div class="step-banner">
+  <b>SaveGames Guide:</b>
+  <div class="step-pill"><span class="num">1</span> Drop <code>SaveGames</code> folder / .sav files (or Select files)</div>
+  <div class="step-pill"><span class="num">2</span> Edit attributes, skills &amp; gear</div>
+  <div class="step-pill"><span class="num">3</span> <b>Delete <code>Saving.sav</code></b> (Auto-deleted when using Save &amp; Overwrite)</div>
+  <span class="help-link" id="banner-why-saving">Why delete Saving.sav?</span>
+</div>
+
+<main>
+  <div id="left">
+    <div class="char-hero-banner" id="char-hero" style="display:none;">
+      <div class="char-hero-left">
+        <div class="char-hero-avatar" id="hero-avatar">H</div>
+        <div class="char-hero-details" id="hero-details">Level 36 Champion</div>
+      </div>
+      <button class="btn ghost tiny" id="btn-change-hero" title="Switch Character Profile">Switch ▾</button>
+    </div>
+
+    <div class="drop-controls" id="drop-controls-wrap">
+      <label id="drop">
+        <strong>Drop SaveGames folder or .sav files here</strong><br>
+        <small style="color:var(--text-dim)">Drag &amp; drop bypasses browser AppData blocks · Auto-detects profiles</small>
+        <input type="file" id="file" multiple accept=".sav,.bak">
+      </label>
+    </div>
+
+    <input type="file" id="folder-input" webkitdirectory directory multiple style="display:none">
+    <input type="file" id="file-input" multiple accept=".sav,.bak" style="display:none">
+
+    <div class="search-box">
+      <input id="search" placeholder="Search gear, unique name, affix, stat…">
+      <div class="filter-pills">
+        <span class="pill active" data-filter="all">All Items</span>
+        <span class="pill" data-filter="weapon">Weapons</span>
+        <span class="pill" data-filter="armor">Armor</span>
+        <span class="pill" data-filter="relic">Relics &amp; Charms</span>
+        <span class="pill" data-filter="currency">Currencies</span>
+      </div>
+      <div class="filter-pills">
+        <span class="pill active" data-rarity="all">All Ranks</span>
+        <span class="pill" data-rarity="Magic" style="color:var(--r-magic)">Magic</span>
+        <span class="pill" data-rarity="Infrequent" style="color:var(--r-infreq)">Infrequent</span>
+        <span class="pill" data-rarity="Rare" style="color:var(--r-rare)">Rare</span>
+        <span class="pill" data-rarity="Epic" style="color:var(--r-epic)">Epic</span>
+      </div>
+    </div>
+
+    <div id="items"></div>
+  </div>
+
+  <div id="right">
+    <div id="empty">
+      <div class="hero-box">
+        <h2 class="hero-title">Titan Quest <span>II</span> Character &amp; Item Editor</h2>
+        <p class="hero-desc">
+          Select your <code>SaveGames</code> folder or <code>.sav</code> files to automatically discover all your character profiles in a single unified view. Runs 100% offline in your browser.
+        </p>
+        <div class="hero-btn-row">
+          <button class="btn btn-reload-folder" id="btn-hero-reload-last-folder" style="display:none; font-size:13.5px; padding:8px 18px;"><span>🔄</span> Reload Previous Folder (<span id="last-folder-name-hero">Folder</span>)</button>
+          <button class="btn folder-btn" id="btn-hero-huy" style="font-size:13.5px; padding:8px 18px; background: linear-gradient(180deg, #c5861b 0%, #8c5b0c 100%);"><span>⚡</span> Load Huy (SaveGames Folder)</button>
+          <button class="btn folder-btn" id="btn-hero-folder" style="font-size:13.5px; padding:8px 18px;">
+            <span>📂</span> Select Folder
+          </button>
+          <button class="btn ghost" id="btn-hero-files" style="font-size:13.5px; padding:8px 18px;">
+            <span>📄</span> Select .sav Files (Ctrl+A)
+          </button>
+        </div>
+      </div>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h4>👤 Single Unified Character View</h4>
+          <p>
+            No more switching between confusing separate <code>.sav</code> file tabs. Equipment, Backpack Inventory, Core Attributes, Masteries, and Currencies are all seamlessly integrated into one character dashboard.
+          </p>
+        </div>
+        <div class="guide-card">
+          <h4>⚔️ Human-Readable Item Names</h4>
+          <p>
+            Items and unique weapons like <b>Harpe</b>, <b>Raging Bull</b>, <b>Funguslog</b>, and <b>Greek Knight Cuirass</b> are clearly labeled with in-game RPG names instead of raw Unreal Engine asset codes.
+          </p>
+        </div>
+        <div class="guide-card">
+          <h4>⚡ Mastery &amp; Skill Trees</h4>
+          <p>
+            Add free active, passive, and mastery points. Expand any ability to configure active <b>Modifier Slots</b> (with tier ranks 1–3) and passive <b>Feat Slots</b>—even ones not yet unlocked in-game.
+          </p>
+        </div>
+        <div class="guide-card">
+          <h4>⚠️ The Saving.sav Manifest</h4>
+          <p>
+            TQ2 stores a CRC32 checksum file named <code>Saving.sav</code>. If a save file's checksum doesn't match, the game rolls back to the <code>.bak</code> file. Deleting <code>Saving.sav</code> forces the game to load your edits and create a fresh valid manifest.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="work" style="display:none">
+      <div id="detail"></div>
+    </div>
+  </div>
+</main>
+
+<div id="log-wrapper">
+  <div class="log-hdr" id="toggle-log">
+    <span>Activity Log &amp; Save Diagnostics</span>
+    <span id="log-count">0 events</span>
+  </div>
+  <div id="log"></div>
+</div>
+
+<div id="toast-container"></div>
+<datalist id="itemlist"></datalist>
+
+<!-- Embedded Data -->
+<script src="js/data/catalog.js?v=20260824_2120"></script>
+<script src="js/data/sample-saves.js?v=20260824_2120"></script>
+
+<!-- Engine & Domain Models -->
+<script src="js/core/zip.js?v=20260824_2120"></script>
+<script src="js/core/gvas.js?v=20260824_2120"></script>
+<script src="js/core/tq2.js?v=20260824_2120"></script>
+
+<!-- UI Modules -->
+<script src="js/ui/common.js?v=20260824_2120"></script>
+<script src="js/ui/components.js?v=20260824_2120"></script>
+<script src="js/ui/file-manager.js?v=20260824_2120"></script>
+<script src="js/ui/character-editor.js?v=20260824_2120"></script>
+<script src="js/ui/item-editor.js?v=20260824_2120"></script>
+
+<!-- App Entry -->
+<script src="js/app.js?v=20260824_2120"></script>
+</body>
+</html>

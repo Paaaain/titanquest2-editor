@@ -1,0 +1,4 @@
+﻿Key,SourceString,DevComment
+"character_jump_message","to jump","Will show for jump spots in combination with the required key."
+"multiplayer_party_joined","Joined",""
+"death_portal_reclaim_xp","Reclaim Experience: {Amount}",""

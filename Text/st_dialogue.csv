@@ -1,0 +1,5 @@
+﻿Key,SourceString,DevComment
+"back","Back","Go back to the topic selection in a dialogue tree"
+"end_conversation","End Conversation",""
+"continue","Continue","Continue the Conversation"
+"exit","Goodbye",""

@@ -1,0 +1,13 @@
+﻿Key,SourceString,DevComment
+"checkbox_item_name","Show Item Names",""
+"category_unique_items","Unique Items",""
+"category_masteries","Masteries",""
+"metaprogression_title","Moirai\'s Codex",""
+"subcategory_uniques_weapons","Unique Weapons",""
+"subcategory_uniques_armor","Unique Armor",""
+"subcategory_uniques_jewelery","Unique Jewelry",""
+"masteries_locked","Complete <b>{chaptername}</> with this mastery combination to unlock.",""
+"masteries_description","Unlock badges by completing chapters of the game\'s <b>fated quests</> with the corresponding mastery combinations. This progress is shared across all your characters.",""
+"uniques_description","<b>High-rarity items</> you\'ve collected in the game are showcased here. This collection is shared across all your characters.",""
+"masteries_locked_single","Complete <b>{chaptername}</> with this mastery only to unlock.",""
+"masteries_locked_nomastery","Complete <b>{chaptername}</> without any mastery to unlock.",""

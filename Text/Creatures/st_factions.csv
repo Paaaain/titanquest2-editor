@@ -1,0 +1,9 @@
+﻿Key,SourceString,DevComment
+"faction_beastmen","Beastmen",""
+"faction_beasts","Beasts",""
+"faction_humans","Humans",""
+"faction_undead","Undead",""
+"faction_divine","Divine",""
+"faction_monstrosities","Monstrosities",""
+"faction_constructs","Constructs",""
+"faction_prefix_format","{0} ~ {1}","args: faction; creature name"
