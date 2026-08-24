@@ -81,7 +81,7 @@ function createSearchableBaseItemSelect({ currentAsset, onSelect }) {
   trigger.type = 'button';
 
   const hum = T.humanizeTQ2Item(currentAsset);
-  const currentTitle = hum.title || currentAsset || '— Select Base Item Template —';
+  const currentTitle = hum.title || currentAsset || t('select.choose_template');
   const currentSub = hum.subtitle || '';
 
   const triggerContent = el('div', 'trigger-content');
@@ -399,11 +399,12 @@ function createSearchableAffixSelect({ currentPath, onSelect, autoOpen, itemAsse
     const kindBadge = el('span', 'kind k-' + currentKind, currentKind);
     triggerContent.appendChild(kindBadge);
   }
-  const labelSpan = el('span', 'searchable-select-label', currentName);
+  const labelSpan = el('span', 'searchable-select-label', currentName || t('select.choose_affix'));
   triggerContent.appendChild(labelSpan);
 
   if (currentPath && !curCompat.compatible) {
-    const warnBadge = el('span', 'badge-pill badge-warn', '⚠ Conflict');
+    const warnText = (app.getLanguage && app.getLanguage() === 'vi') ? '⚠ Xung đột' : '⚠ Conflict';
+    const warnBadge = el('span', 'badge-pill badge-warn', warnText);
     warnBadge.title = curCompat.reason;
     triggerContent.appendChild(warnBadge);
   }
@@ -461,7 +462,7 @@ function createSearchableAffixSelect({ currentPath, onSelect, autoOpen, itemAsse
     const searchIcon = el('span', 'searchable-select-search-icon', '🔍');
     const searchInput = el('input', 'searchable-select-search-input');
     searchInput.type = 'text';
-    searchInput.placeholder = 'Search suffix, prefix, implicit, other or stat...';
+    searchInput.placeholder = t('select.search_placeholder');
     searchInput.autocomplete = 'off';
     searchInput.spellcheck = false;
 
@@ -536,7 +537,7 @@ function createSearchableAffixSelect({ currentPath, onSelect, autoOpen, itemAsse
 
     ['All', 'Recommended', 'Prefix', 'Suffix', 'Implicit', 'Other'].forEach(cat => {
       let label = cat;
-      if (cat === 'Recommended') label = '✨ Phù hợp';
+      if (cat === 'Recommended') label = (app.getLanguage && app.getLanguage() === 'vi') ? '✨ Phù hợp' : '✨ Recommended';
       const p = el('button', 's-pill sp-' + cat + (cat === activeCat ? ' active' : ''), `${label} (${catCounts[cat] || 0})`);
       p.type = 'button';
       p.onclick = (e) => {

@@ -4,6 +4,7 @@
 
 const app = root.TQ2App;
 const G = app.G, T = app.T;
+const t = (k, p) => (app && typeof app.t === 'function' ? app.t(k, p) : (p ? k : k));
 const $ = app.$, $$ = app.$$, el = app.el, elHtml = app.elHtml, fmtNum = app.fmtNum, escapeHtml = app.escapeHtml;
 const log = app.log, toast = app.toast, lbl = app.lbl;
 
@@ -131,13 +132,13 @@ function renderList() {
   // --- List Control Toolbar (Expand All / Collapse All / Batch Blacksmith Reset) ---
   const toolbar = el('div', 'list-ctrl-toolbar');
   
-  const countSpan = el('span', 'list-stat-badge', `📦 ${totalVisibleItems} đồ (${groups.size + (secs.length ? 1 : 0)} nhóm)`);
+  const countSpan = el('span', 'list-stat-badge', t('left.stat_badge', { count: totalVisibleItems, groups: groups.size + (secs.length ? 1 : 0) }));
   toolbar.appendChild(countSpan);
 
   const btnGroup = el('div', 'list-ctrl-btn-group');
 
-  const expandAllBtn = el('button', 'btn tiny ghost list-ctrl-btn', '🔽 Mở');
-  expandAllBtn.title = 'Mở rộng tất cả các nhóm (Expand All)';
+  const expandAllBtn = el('button', 'btn tiny ghost list-ctrl-btn', t('left.expand_all'));
+  expandAllBtn.title = t('left.expand_all_title');
   expandAllBtn.onclick = (e) => {
     e.stopPropagation();
     app.state.collapsedGroups.clear();
@@ -145,8 +146,8 @@ function renderList() {
   };
   btnGroup.appendChild(expandAllBtn);
 
-  const collapseAllBtn = el('button', 'btn tiny ghost list-ctrl-btn', '🔼 Thu');
-  collapseAllBtn.title = 'Thu gọn tất cả các nhóm (Collapse All)';
+  const collapseAllBtn = el('button', 'btn tiny ghost list-ctrl-btn', t('left.collapse_all'));
+  collapseAllBtn.title = t('left.collapse_all_title');
   collapseAllBtn.onclick = (e) => {
     e.stopPropagation();
     if (secs.length) app.state.collapsedGroups.add('profile');
@@ -157,8 +158,8 @@ function renderList() {
   };
   btnGroup.appendChild(collapseAllBtn);
 
-  const resetAllForgeBtn = el('button', 'btn tiny ghost danger list-ctrl-btn', '🔨 Reset Rèn');
-  resetAllForgeBtn.title = 'Xóa sạch lịch sử thợ rèn (m_CraftingHistory) cho tất cả trang bị trong túi và rương';
+  const resetAllForgeBtn = el('button', 'btn tiny ghost danger list-ctrl-btn', t('left.reset_forge'));
+  resetAllForgeBtn.title = t('left.reset_forge_title');
   resetAllForgeBtn.onclick = (e) => {
     e.stopPropagation();
     confirmResetAllBlacksmith();
@@ -172,12 +173,12 @@ function renderList() {
   if (secs.length) {
     const isProfileCollapsed = !isFiltering && app.state.collapsedGroups.has('profile');
     const h = el('div', 'grp clickable' + (isProfileCollapsed ? ' is-collapsed' : ''));
-    h.title = isProfileCollapsed ? 'Click để mở rộng nhóm này' : 'Click để thu gọn nhóm này';
+    h.title = isProfileCollapsed ? (t ? t('left.expand_all_title') : 'Expand') : (t ? t('left.collapse_all_title') : 'Collapse');
     
     const leftTitle = el('span', 'grp-title');
-    leftTitle.innerHTML = `<span class="grp-toggle-icon">${isProfileCollapsed ? '▶' : '▼'}</span> 🌟 Character Profile & Skills`;
+    leftTitle.innerHTML = `<span class="grp-toggle-icon">${isProfileCollapsed ? '▶' : '▼'}</span> ${t('left.grp_profile')}`;
     h.appendChild(leftTitle);
-    h.appendChild(el('span', 'grp-count', secs.length + ' mục'));
+    h.appendChild(el('span', 'grp-count', t('left.sections_count', { n: secs.length })));
 
     h.onclick = () => {
       if (app.state.collapsedGroups.has('profile')) {
@@ -197,7 +198,7 @@ function renderList() {
 
         const textWrap = el('div', 'item-text');
         textWrap.appendChild(el('span', 'nm', s.label));
-        textWrap.appendChild(el('span', 'subnm', s.key === 'attr' ? 'Might, Agility, Knowledge, Vigor & AP' : (s.key === 'mastery' ? 'Warfare / Earth abilities & feats' : (s.key === 'currency' ? 'Gold, Obols, Tears calculation' : 'Kills & death records'))));
+        textWrap.appendChild(el('span', 'subnm', s.key === 'attr' ? t('char.sec_attr_sub') : (s.key === 'mastery' ? t('char.sec_mastery_sub') : (s.key === 'currency' ? t('char.sec_currency_sub') : t('char.sec_stats_sub')))));
         row.appendChild(textWrap);
 
         row.onclick = () => {
@@ -214,12 +215,12 @@ function renderList() {
   for (const [cName, list] of groups) {
     const isGrpCollapsed = !isFiltering && app.state.collapsedGroups.has(cName);
     const h = el('div', 'grp clickable' + (isGrpCollapsed ? ' is-collapsed' : ''));
-    h.title = isGrpCollapsed ? 'Click để mở rộng nhóm này' : 'Click để thu gọn nhóm này';
+    h.title = isGrpCollapsed ? (t ? t('left.expand_all_title') : 'Expand') : (t ? t('left.collapse_all_title') : 'Collapse');
     
     const leftTitle = el('span', 'grp-title');
     leftTitle.innerHTML = `<span class="grp-toggle-icon">${isGrpCollapsed ? '▶' : '▼'}</span> ${cName}`;
     h.appendChild(leftTitle);
-    h.appendChild(el('span', 'grp-count', list.length + ' đồ'));
+    h.appendChild(el('span', 'grp-count', t('left.items_count', { n: list.length })));
 
     h.onclick = () => {
       if (app.state.collapsedGroups.has(cName)) {
@@ -251,7 +252,7 @@ function renderList() {
         const badges = el('div', 'meta-badges');
         if (hasCraftHistory) {
           const craftBadge = el('span', 'badge-tag craft-tag', '🔨');
-          craftBadge.title = 'Trang bị này có lịch sử rèn (Crafting History)';
+          craftBadge.title = t('left.craft_tag_title');
           badges.appendChild(craftBadge);
         }
         const lvl = T.pval(it, 'm_Level');
@@ -472,11 +473,12 @@ function renderDetail() {
     bar.style.border = '1px solid var(--border-gold)';
     bar.style.borderRadius = 'var(--radius-md)';
 
+    const isVi = (app.getLanguage && app.getLanguage() === 'vi');
     const barHdr = el('div', 'add-affix-hdr');
     barHdr.style.display = 'flex';
     barHdr.style.alignItems = 'center';
     barHdr.style.justifyContent = 'space-between';
-    barHdr.innerHTML = `<span style="font-size:12px; font-weight:700; color:var(--gold-primary); text-transform:uppercase; letter-spacing:0.06em;">✨ Thêm Dòng Kỹ Năng &amp; Chỉ Số (Affix Creation)</span>`;
+    barHdr.innerHTML = `<span style="font-size:12px; font-weight:700; color:var(--gold-primary); text-transform:uppercase; letter-spacing:0.06em;">${isVi ? '✨ Thêm Dòng Kỹ Năng &amp; Chỉ Số' : '✨ Add Affixes &amp; Stat Modifiers'}</span>`;
 
     const barBtnRow = el('div', 'add-affix-btn-row');
     barBtnRow.style.display = 'flex';
@@ -484,9 +486,9 @@ function renderDetail() {
     barBtnRow.style.gap = '8px';
     barBtnRow.style.alignItems = 'center';
 
-    // 1. Thêm Slot Riêng Lẻ
-    const addSingleBtn = el('button', 'btn', '➕ Thêm Slot Riêng Lẻ (Single Slot)');
-    addSingleBtn.title = 'Thêm 1 slot Affix độc lập mới (Prefix / Suffix / Implicit / Unique) và chọn chỉ số riêng';
+    // 1. Single Slot
+    const addSingleBtn = el('button', 'btn', isVi ? '➕ Thêm Slot Riêng Lẻ' : '➕ Add Single Slot');
+    addSingleBtn.title = isVi ? 'Thêm 1 slot Affix độc lập mới (Prefix / Suffix / Implicit / Unique) và chọn chỉ số riêng' : 'Add a new independent affix slot (Prefix / Suffix / Implicit / Unique)';
     addSingleBtn.onclick = () => {
       const CAT = app.state.CAT;
       const slotType = T.getItemSlotType(it.handle ? it.handle.asset : '');
@@ -510,26 +512,26 @@ function renderDetail() {
       af.mark();
       app.markDirty();
       if (app.render) app.render();
-      toast('Đã thêm slot Affix riêng lẻ mới – hãy chọn hoặc tìm kiếm dòng mong muốn', 'succ');
+      toast(isVi ? 'Đã thêm slot Affix riêng lẻ mới' : 'Added new single affix slot', 'succ');
     };
     barBtnRow.appendChild(addSingleBtn);
 
-    // 2. Thêm Gói Gộp Đa Chỉ Số (Multi-Stat Bundled Slot)
-    const addBundleBtn = el('button', 'btn ghost primary', '📦 Thêm Gói Gộp Đa Chỉ Số (Bundled Slot)');
-    addBundleBtn.title = 'Tạo 1 slot Affix gộp nhiều chỉ số con bên trong, mỗi chỉ số con đều có thể chọn Tier độc lập';
+    // 2. Multi-Stat Bundled Slot
+    const addBundleBtn = el('button', 'btn ghost primary', isVi ? '📦 Thêm Gói Gộp Đa Chỉ Số' : '📦 Add Bundled Slot');
+    addBundleBtn.title = isVi ? 'Tạo 1 slot Affix gộp nhiều chỉ số con bên trong' : 'Create an affix slot containing multiple sub-effects';
     addBundleBtn.onclick = () => {
       showBundlePresetModal(it, af);
     };
     barBtnRow.appendChild(addBundleBtn);
 
-    // 3. Nạp Nhanh Presets Dropdown
+    // 3. Presets Dropdown
     const presetSelect = el('select', 'txt tiny');
     presetSelect.style.maxWidth = '260px';
     presetSelect.style.color = 'var(--gold-primary)';
     presetSelect.style.fontWeight = '600';
-    presetSelect.appendChild(el('option', '', '⚡ Nạp nhanh Combo Preset...'));
+    presetSelect.appendChild(el('option', '', isVi ? '⚡ Nạp nhanh Combo Preset...' : '⚡ Quick Affix Presets...'));
     
-    const PRESETS = [
+    const PRESETS = isVi ? [
       { id: 'forge_full', label: '🔨 Combo Lò Rèn (T1~T5 Active + Passive)' },
       { id: 'spirit_full', label: '👻 Combo Linh Hồn (T1~T5 Active + Passive)' },
       { id: 'warfare_full', label: '⚔️ Combo Chiến Trận (T1~T5 Active + Passive)' },
@@ -540,6 +542,17 @@ function renderDetail() {
       { id: 'all_res', label: '🛡️ Combo 5 Kháng (Lửa + Băng + Sét + Độc + Vật lý)' },
       { id: 'speed_crit', label: '💥 Combo Tốc Độ & Chí Mạng (Speed + Crit)' },
       { id: 'energy_barrier', label: '✨ Combo Năng Lượng & Khiên (Energy & Barrier)' }
+    ] : [
+      { id: 'forge_full', label: '🔨 Forge Combo (T1~T5 Active + Passive)' },
+      { id: 'spirit_full', label: '👻 Spirit Combo (T1~T5 Active + Passive)' },
+      { id: 'warfare_full', label: '⚔️ Warfare Combo (T1~T5 Active + Passive)' },
+      { id: 'earth_full', label: '🌍 Earth Combo (T1~T5 Active + Passive)' },
+      { id: 'storm_full', label: '⚡ Storm Combo (T1~T5 Active + Passive)' },
+      { id: 'rogue_full', label: '🗡️ Rogue Combo (T1~T5 Active + Passive)' },
+      { id: 'all_attrs', label: '🌟 All 4 Attributes (Might + Agility + Knowledge + Vigor)' },
+      { id: 'all_res', label: '🛡️ All 5 Resistances (Fire + Cold + Lightning + Poison + Physical)' },
+      { id: 'speed_crit', label: '💥 Speed & Critical Combo' },
+      { id: 'energy_barrier', label: '✨ Energy & Barrier Combo' }
     ];
 
     PRESETS.forEach(pr => {
@@ -572,7 +585,8 @@ function renderDetail() {
   craftHdr.style.justifyContent = 'space-between';
   craftHdr.style.margin = '0 0 10px 0';
 
-  const craftH3 = el('h3', '', '🔨 Thợ Rèn & Lịch Sử Chế Tạo (Blacksmith Crafting)');
+  const isVi = (app.getLanguage && app.getLanguage() === 'vi');
+  const craftH3 = el('h3', '', isVi ? '🔨 Thợ Rèn & Lịch Sử Chế Tạo' : '🔨 Blacksmith & Crafting History');
   craftH3.style.margin = '0';
   craftHdr.appendChild(craftH3);
   craftCard.appendChild(craftHdr);
@@ -581,26 +595,26 @@ function renderDetail() {
   if (hasHistory) {
     craftBody.innerHTML = `
       <div class="crafting-status-box has-history">
-        <div class="crafting-status-title">⚠️ <b>Đã có Lịch Sử Rèn (Crafting History: Active)</b></div>
-        <div class="crafting-status-desc">Trang bị này đang lưu dữ liệu <code>m_CraftingHistory</code> từ lò rèn thợ rèn. Game Titan Quest II sẽ đếm số lần đã rèn và giới hạn các lần rèn tiếp theo.</div>
+        <div class="crafting-status-title">⚠️ <b>${isVi ? 'Đã có Lịch Sử Rèn (Crafting History: Active)' : 'Crafting History Recorded (Active)'}</b></div>
+        <div class="crafting-status-desc">${isVi ? 'Trang bị này đang lưu dữ liệu <code>m_CraftingHistory</code> từ lò rèn thợ rèn. Game sẽ giới hạn các lần rèn tiếp theo.' : 'This item contains <code>m_CraftingHistory</code> from the blacksmith. Future in-game crafts may be restricted.'}</div>
       </div>
     `;
-    const btnResetCraft = el('button', 'btn danger', '🔄 Xóa Lịch Sử Rèn (Reset Blacksmith)');
+    const btnResetCraft = el('button', 'btn danger', isVi ? '🔄 Xóa Lịch Sử Rèn (Reset Blacksmith)' : '🔄 Reset Blacksmith History');
     btnResetCraft.style.marginTop = '10px';
-    btnResetCraft.title = 'Xóa sạch m_CraftingHistory để trang bị trở về trạng thái nguyên bản (Pristine), có thể rèn lại tự do trong game.';
+    btnResetCraft.title = isVi ? 'Xóa sạch m_CraftingHistory để trang bị trở về trạng thái nguyên bản' : 'Remove all m_CraftingHistory modifications to restore pristine state';
     btnResetCraft.onclick = () => {
       if (T.resetCraftingHistory && T.resetCraftingHistory(it)) {
         app.markDirty();
         if (app.render) app.render();
-        toast(`Đã xóa sạch lịch sử thợ rèn cho "${hum.title}"! Trang bị đã sẵn sàng rèn lại.`, 'succ');
+        toast(isVi ? `Đã xóa sạch lịch sử thợ rèn cho "${hum.title}"!` : `Reset blacksmith crafting history for "${hum.title}"!`, 'succ');
       }
     };
     craftBody.appendChild(btnResetCraft);
   } else {
     craftBody.innerHTML = `
       <div class="crafting-status-box pristine">
-        <div class="crafting-status-title">✨ <b>Trạng Thái Nguyên Bản (Pristine / No Craft History)</b></div>
-        <div class="crafting-status-desc">Trang bị chưa có lịch sử rèn hoặc đã được reset sạch. Bạn có thể mang đến Thợ Rèn trong game để rèn lại tối đa số lần cho phép.</div>
+        <div class="crafting-status-title">✨ <b>${isVi ? 'Trạng Thái Nguyên Bản (Pristine / No Craft History)' : 'Pristine State (No Craft History)'}</b></div>
+        <div class="crafting-status-desc">${isVi ? 'Trang bị chưa có lịch sử rèn hoặc đã được reset sạch. Bạn có thể mang đến Thợ Rèn trong game để rèn lại tự do.' : 'This item has no blacksmith modification history. It can be freely crafted and upgraded in-game.'}</div>
       </div>
     `;
   }

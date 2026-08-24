@@ -4,6 +4,7 @@
 
 const app = root.TQ2App;
 const G = app.G, T = app.T;
+const t = (k, p) => (app && typeof app.t === 'function' ? app.t(k, p) : (p ? k : k));
 const $ = app.$, $$ = app.$$, el = app.el, elHtml = app.elHtml, escapeHtml = app.escapeHtml;
 const log = app.log, toast = app.toast;
 
@@ -118,8 +119,8 @@ function showProfileSelectModal(profiles, shared) {
 
   const overlay = el('div', 'modal-overlay');
   const box = el('div', 'modal-box');
-  box.appendChild(el('h3', '', 'Select Character Profile to Edit'));
-  box.appendChild(el('div', 'm-sub', `Found ${profiles.length} character profile(s). Pick a character to load all its equipment, attributes & masteries in one view:`));
+  box.appendChild(el('h3', '', t('modals.profile_modal_title')));
+  box.appendChild(el('div', 'm-sub', t('modals.profile_modal_sub', { count: profiles.length })));
 
   const list = el('div', 'profile-grid');
   profiles.forEach(prof => {
@@ -130,18 +131,18 @@ function showProfileSelectModal(profiles, shared) {
     info.appendChild(avatar);
 
     const meta = el('div', 'profile-meta');
-    meta.appendChild(el('div', 'profile-name', prof.charName + (prof.level ? ` (Level ${prof.level})` : '') + (isAct ? ' ★ Active' : '')));
+    meta.appendChild(el('div', 'profile-name', prof.charName + (prof.level ? ` (Level ${prof.level})` : '') + (isAct ? ` ${t('modals.profile_active_badge')}` : '')));
     const det = [];
-    if (prof.timestamp) det.push(`Saved: ${prof.timestamp}`);
-    if (prof.playtime) det.push(`Playtime: ${prof.playtime}`);
+    if (prof.timestamp) det.push(t('modals.profile_saved', { time: prof.timestamp }));
+    if (prof.playtime) det.push(t('modals.profile_playtime', { time: prof.playtime }));
     meta.appendChild(el('div', 'profile-details', det.join(' • ') || 'TQ2 Character Save'));
 
     const fileTypes = Object.keys(prof.files).join(', ');
-    meta.appendChild(el('div', 'profile-files-tag', `Files: ${fileTypes || 'Player, Local, Header'}`));
+    meta.appendChild(el('div', 'profile-files-tag', t('modals.profile_files', { files: fileTypes || 'Player, Local, Header' })));
     info.appendChild(meta);
     card.appendChild(info);
 
-    const selectBtn = el('button', 'btn', isAct ? 'Reload Profile' : 'Edit Character');
+    const selectBtn = el('button', 'btn', isAct ? t('modals.profile_reload_btn') : t('modals.profile_edit_btn'));
     selectBtn.onclick = async () => {
       overlay.remove();
       await loadProfile(prof, includeStashCheckbox.checked);
@@ -159,11 +160,11 @@ function showProfileSelectModal(profiles, shared) {
   includeStashCheckbox.type = 'checkbox';
   includeStashCheckbox.checked = true;
   stashRow.appendChild(includeStashCheckbox);
-  stashRow.appendChild(document.createTextNode(' Include Caravan / Shared Stash tabs with this profile (Recommended)'));
+  stashRow.appendChild(document.createTextNode(' ' + t('modals.profile_include_shared')));
   box.appendChild(stashRow);
 
   const actions = el('div', 'modal-actions');
-  const cancelBtn = el('button', 'btn ghost tiny', 'Close');
+  const cancelBtn = el('button', 'btn ghost tiny', t('modals.modal_close'));
   cancelBtn.onclick = () => overlay.remove();
   actions.appendChild(cancelBtn);
   box.appendChild(actions);
@@ -207,7 +208,7 @@ function updateActiveCharacterHeader(name, level, playtime) {
   const switcher = $('#btn-profile-switch');
   if (switcher) switcher.style.display = 'inline-flex';
   const currentProfileLabel = $('#current-profile-label');
-  if (currentProfileLabel) currentProfileLabel.textContent = `Character: ${name}${level ? ' (Lv ' + level + ')' : ''}`;
+  if (currentProfileLabel) currentProfileLabel.textContent = t('header.profile_label', { name: name || 'Hero', level: level || 1 });
 }
 
 /* File Loading */
@@ -251,81 +252,6 @@ async function addFiles(fileList) {
   else app.state.curItem = null;
 
   if (app.render) app.render();
-}
-
-async function loadHuySaveData() {
-  app.state.files.length = 0;
-  const bundle = window.__HUY_SAVES__;
-  const fileObjs = [];
-
-  const urls = [
-    '/SaveGames/Huy_2026-04-17--20-56-20_Data_Player.sav',
-    '/SaveGames/Huy_2026-04-17--20-56-20_Data_PlayerLocal.sav',
-    '/SaveGames/Huy_2026-04-17--20-56-20_Header.sav',
-    '/SaveGames/PublicCrossCharacterSaveData.sav'
-  ];
-
-  let loadedViaFetch = false;
-  try {
-    const fetched = await Promise.all(urls.map(async u => {
-      const res = await fetch(u);
-      if (!res.ok) throw new Error('Not found');
-      const buf = await res.arrayBuffer();
-      return new File([buf], u.split('/').pop());
-    }));
-    if (fetched.length === urls.length) {
-      fileObjs.push(...fetched);
-      loadedViaFetch = true;
-    }
-  } catch (e) { /* fallback to embedded */ }
-
-  if (!loadedViaFetch && bundle) {
-    for (const [fName, b64] of Object.entries(bundle)) {
-      const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-      fileObjs.push(new File([bin], fName));
-    }
-  }
-
-  if (fileObjs.length) {
-    let charName = 'Huy', level = 36, playtime = '27h 52m';
-    for (const f of fileObjs) {
-      if (f.name.includes('Header')) {
-        try {
-          const buf = new Uint8Array(await f.arrayBuffer());
-          const s = G.parseSave(buf);
-          const nameP = s.root.get('m_CharacterName'), lvlP = s.root.get('m_Level'), playP = s.root.get('m_TotalPlayTimeSeconds');
-          if (nameP && nameP.value instanceof G.Scalar) charName = nameP.value.v;
-          if (lvlP && lvlP.value instanceof G.Scalar) level = lvlP.value.v;
-          if (playP && playP.value instanceof G.Scalar) {
-            const sec = Number(playP.value.v);
-            playtime = `${Math.floor(sec / 3600)}h ${Math.floor((sec % 3600) / 60)}m`;
-          }
-        } catch (e) { /* ignore */ }
-      }
-    }
-
-    app.state.activeProfile = {
-      prefix: 'Huy_2026-04-17--20-56-20',
-      charName,
-      level,
-      playtime,
-      timestamp: '2026-04-17 20:56:20',
-      files: {
-        Data_Player: 'Huy_2026-04-17--20-56-20_Data_Player.sav',
-        Data_PlayerLocal: 'Huy_2026-04-17--20-56-20_Data_PlayerLocal.sav',
-        Header: 'Huy_2026-04-17--20-56-20_Header.sav'
-      }
-    };
-    app.state.discoveredProfiles = [app.state.activeProfile];
-    app.state.sharedStashFiles = ['PublicCrossCharacterSaveData.sav'];
-
-    await addFiles(fileObjs);
-    updateActiveCharacterHeader(charName, level, playtime);
-    log(`Successfully loaded character "${charName}" (Level ${level}) from latest save data!`, false, true);
-    toast(`Loaded character ${charName} (Level ${level}) from latest save data!`, 'succ');
-  } else {
-    toast('Unable to load save files. Please use Select Folder (D:\\TQ2Saves).', 'err');
-  }
 }
 
 /* Direct Save & Overwrite to Local Disk via File System Access API */
@@ -631,19 +557,41 @@ function showPostModal(fileNames, zipName) {
 function showHelpModal() {
   const overlay = el('div', 'modal-overlay');
   const box = el('div', 'modal-box');
-  box.style.maxWidth = '600px';
-  box.appendChild(el('h3', '', 'Save File Guide & Saving.sav Explained'));
-  box.innerHTML += `
-    <p class="hint"><b>Why delete <code>Saving.sav</code>?</b><br>
-    Titan Quest II maintains a checksum manifest file (<code>Saving.sav</code>). If a save file's CRC32 checksum does not match the manifest on game launch, the game discards your edits and restores from the <code>.bak</code> backup file.<br>
-    Deleting <code>Saving.sav</code> forces TQ2 to load unverified and automatically write a fresh, valid manifest on next save.</p>
-    <p class="hint"><b>Save Locations:</b><br>
-    <code>C:\\Users\\&lt;Name&gt;\\AppData\\Local\\TQ2\\Saved\\SaveGames</code></p>
-    <p class="hint"><b>Direct Auto-Replace &amp; Browser Access:</b><br>
-    1. <b>File Selection (Zero Setup):</b> Click <b>"Select .sav Files"</b> (<kbd>Ctrl+A</kbd> in SaveGames) &rarr; Click <b>"⚡ Save &amp; Overwrite"</b> to auto-replace directly on disk.<br>
-    2. <b>Folder Junction (1-Click):</b> Run <code>mklink /J "%USERPROFILE%\\TQ2Saves" "%LOCALAPPDATA%\\TQ2\\Saved\\SaveGames"</code> to open SaveGames via Folder Picker with auto-delete of <code>Saving.sav</code>!</p>
-  `;
-  const ok = el('button', 'btn ghost', 'Close Guide');
+  box.style.maxWidth = '640px';
+  const isVi = (app.getLanguage && app.getLanguage() === 'vi');
+  box.appendChild(el('h3', '', isVi ? 'Titan Quest II – Hướng Dẫn Save & Saving.sav' : 'Save File Guide & Saving.sav Explained'));
+  
+  if (isVi) {
+    box.innerHTML += `
+      <div style="font-size:13px; line-height:1.6; color:var(--text-main); margin-bottom:12px;">
+        <p class="hint"><b>Tại sao cần xóa <code>Saving.sav</code>?</b><br>
+        Titan Quest II sử dụng file <code>Saving.sav</code> để lưu mã băm CRC32 cho từng file save. Nếu một file save bị chỉnh sửa mà không khớp với manifest, game sẽ bỏ qua thay đổi và nạp lại từ file sao lưu <code>.bak</code>.<br>
+        Khi xóa <code>Saving.sav</code>, game sẽ đọc toàn bộ dữ liệu mới chỉnh sửa và tự động tạo lại một file manifest checksum chuẩn xác ở lần lưu tiếp theo.</p>
+        <p class="hint"><b>Vị trí Thư mục Save Games Chuẩn:</b><br>
+        <code>D:\\TQ2Saves</code> hoặc <code>%LOCALAPPDATA%\\TQ2\\Saved\\SaveGames</code></p>
+        <p class="hint"><b>Quy trình khuyến nghị:</b><br>
+        1. Bấm <b>"📂 Chọn Thư mục"</b> chọn <code>D:\\TQ2Saves</code>.<br>
+        2. Tùy chỉnh nhân vật, điểm kỹ năng, thuộc tính và trang bị.<br>
+        3. Bấm <b>"⚡ Lưu &amp; Ghi đè"</b> &rarr; Editor sẽ ghi đè trực tiếp và tự động xóa <code>Saving.sav</code>!</p>
+      </div>
+    `;
+  } else {
+    box.innerHTML += `
+      <div style="font-size:13px; line-height:1.6; color:var(--text-main); margin-bottom:12px;">
+        <p class="hint"><b>Why delete <code>Saving.sav</code>?</b><br>
+        Titan Quest II maintains a checksum manifest file (<code>Saving.sav</code>). If a save file's CRC32 checksum does not match the manifest on game launch, the game discards your edits and restores from the <code>.bak</code> backup file.<br>
+        Deleting <code>Saving.sav</code> forces TQ2 to load unverified and automatically write a fresh, valid manifest on next save.</p>
+        <p class="hint"><b>Standard Save Location:</b><br>
+        <code>D:\\TQ2Saves</code> or <code>%LOCALAPPDATA%\\TQ2\\Saved\\SaveGames</code></p>
+        <p class="hint"><b>Recommended Workflow:</b><br>
+        1. Click <b>"📂 Select Folder"</b> (e.g. <code>D:\\TQ2Saves</code>).<br>
+        2. Customize your character attributes, masteries, currencies, and item affixes.<br>
+        3. Click <b>"⚡ Save &amp; Overwrite"</b> &rarr; The editor overwrites files and auto-deletes <code>Saving.sav</code>!</p>
+      </div>
+    `;
+  }
+
+  const ok = el('button', 'btn ghost', t('modals.modal_close'));
   ok.onclick = () => overlay.remove();
   box.appendChild(ok);
   overlay.appendChild(box);
@@ -872,7 +820,6 @@ app.showProfileSelectModal = showProfileSelectModal;
 app.loadProfile = loadProfile;
 app.updateActiveCharacterHeader = updateActiveCharacterHeader;
 app.addFiles = addFiles;
-app.loadHuySaveData = loadHuySaveData;
 app.saveDirectlyToGame = saveDirectlyToGame;
 app.showDirectSaveSuccessModal = showDirectSaveSuccessModal;
 app.downloadAll = downloadAll;

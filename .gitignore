@@ -10,3 +10,10 @@ Thumbs.db
 
 # Temporary scratch & test artifacts
 scratch/
+
+# Personal Saves & Backups
+SaveGames/
+*.sav
+*.bak
+*.zip
+*.rar

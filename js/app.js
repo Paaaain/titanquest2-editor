@@ -41,11 +41,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Quick Action Buttons
-  const btnLoadHuy = $('#btn-load-huy');
-  if (btnLoadHuy) btnLoadHuy.onclick = app.loadHuySaveData;
-  const heroHuy = $('#btn-hero-huy');
-  if (heroHuy) heroHuy.onclick = app.loadHuySaveData;
-
   const btnSelectFolder = $('#btn-select-folder');
   if (btnSelectFolder) btnSelectFolder.onclick = app.triggerFolderPicker;
   const btnHeroFolder = $('#btn-hero-folder');

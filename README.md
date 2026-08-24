@@ -23,7 +23,7 @@
 
 ### 👤 Single Unified Character View
 - **No file juggling**: Integrates equipped gear (`m_Equipment`), backpack items (`m_Inventories[0]`), personal stash tabs (`m_Inventories[3..4]`), and caravan shared stash into a single dashboard.
-- **Smart profile auto-detection**: Drop your entire `SaveGames` folder, and the editor instantly scans and indexes all your character profiles (`Huy`, `Player_02`, etc.) with their levels and classes.
+- **Smart profile auto-detection**: Drop your entire `SaveGames` folder, and the editor instantly scans and indexes all your character profiles (e.g. `Player_01`, `Hero_Warrior`, etc.) with their levels and classes.
 
 ### 🔨 Blacksmith Crafting Reset (Xóa Lịch Sử Rèn)
 - **Reset forged limits**: In Titan Quest II, forging items at the Blacksmith marks them with `m_CraftingHistory`, capping further modifications.

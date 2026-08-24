@@ -22,10 +22,9 @@
 
   <div class="hdr-actions">
     <button class="btn profile-switcher" id="btn-profile-switch" style="display:none;" title="Click to switch between character profiles in your SaveGames folder">
-      <span>👤</span> <span id="current-profile-label">Character: Huy (Lv 36)</span> ▾
+      <span>👤</span> <span id="current-profile-label">Select Character</span> ▾
     </button>
     <button class="btn btn-reload-folder" id="btn-reload-last-folder" style="display:none;" title="Instantly reload saves from your previously selected folder"><span>🔄</span> Reload: <strong id="last-folder-name">Folder</strong></button>
-    <button class="btn folder-btn" id="btn-load-huy" title="Instantly load Huy (Level 36) from your SaveGames folder for testing"><span>⚡</span> Load Huy (SaveGames)</button>
     <button class="btn folder-btn" id="btn-select-folder" title="Select a SaveGames folder (e.g. D:\TQ2Saves) for 1-click loading & direct overwriting">
       <span>📂</span> Select Folder
     </button>
@@ -58,7 +57,7 @@
       <div class="char-hero-left">
         <div class="char-hero-avatar" id="hero-avatar">H</div>
         <div class="char-hero-info">
-          <div class="char-hero-name" id="hero-name">Huy</div>
+          <div class="char-hero-name" id="hero-name">Character</div>
           <div class="char-hero-details" id="hero-details">Level 36 Champion</div>
         </div>
       </div>
@@ -106,7 +105,6 @@
         </p>
         <div class="hero-btn-row">
           <button class="btn btn-reload-folder" id="btn-hero-reload-last-folder" style="display:none; font-size:13.5px; padding:8px 18px;"><span>🔄</span> Reload Previous Folder (<span id="last-folder-name-hero">Folder</span>)</button>
-          <button class="btn folder-btn" id="btn-hero-huy" style="font-size:13.5px; padding:8px 18px; background: linear-gradient(180deg, #c5861b 0%, #8c5b0c 100%);"><span>⚡</span> Load Huy (SaveGames Folder)</button>
           <button class="btn folder-btn" id="btn-hero-folder" style="font-size:13.5px; padding:8px 18px;">
             <span>📂</span> Select Folder
           </button>
@@ -165,7 +163,6 @@
 
 <!-- Embedded Data -->
 <script src="js/data/catalog.js"></script>
-<script src="js/data/sample-saves.js"></script>
 
 <!-- Engine & Domain Models -->
 <script src="js/core/zip.js"></script>

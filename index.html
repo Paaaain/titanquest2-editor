@@ -22,11 +22,9 @@
 
   <div class="hdr-actions">
     <button class="btn profile-switcher" id="btn-profile-switch" style="display:none;" title="Click to switch between character profiles in your SaveGames folder">
-      <span>👤</span> <span id="current-profile-label">Character: Huy (Lv 36)</span> ▾
+      <span>👤</span> <span id="current-profile-label">Select Character</span> ▾
     </button>
     <button class="btn btn-reload-folder" id="btn-reload-last-folder" style="display:none;" title="Instantly reload saves from your previously selected folder"><span>🔄</span> Reload: <strong id="last-folder-name">Folder</strong></button>
-    <a href="Huy_SaveGames.zip" download="Huy_SaveGames.zip" class="btn" style="background: linear-gradient(135deg, #1e7e34, #28a745); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; padding: 5px 10px;" title="Download complete fixed Huy save files (.zip archive)"><span>📥</span> Tải Save Huy (.zip)</a>
-    <button class="btn folder-btn" id="btn-load-huy" title="Instantly load Huy (Level 36) from your SaveGames folder for testing"><span>⚡</span> Load Huy (SaveGames)</button>
     <button class="btn folder-btn" id="btn-select-folder" title="Select a SaveGames folder (e.g. D:\TQ2Saves) for 1-click loading & direct overwriting">
       <span>📂</span> Select Folder
     </button>
@@ -103,7 +101,6 @@
         </p>
         <div class="hero-btn-row">
           <button class="btn btn-reload-folder" id="btn-hero-reload-last-folder" style="display:none; font-size:13.5px; padding:8px 18px;"><span>🔄</span> Reload Previous Folder (<span id="last-folder-name-hero">Folder</span>)</button>
-          <button class="btn folder-btn" id="btn-hero-huy" style="font-size:13.5px; padding:8px 18px; background: linear-gradient(180deg, #c5861b 0%, #8c5b0c 100%);"><span>⚡</span> Load Huy (SaveGames Folder)</button>
           <button class="btn folder-btn" id="btn-hero-folder" style="font-size:13.5px; padding:8px 18px;">
             <span>📂</span> Select Folder
           </button>
@@ -160,7 +157,6 @@
 
 <!-- Embedded Data -->
 <script src="js/data/catalog.js?v=20260824_2120"></script>
-<script src="js/data/sample-saves.js?v=20260824_2120"></script>
 
 <!-- Engine & Domain Models -->
 <script src="js/core/zip.js?v=20260824_2120"></script>

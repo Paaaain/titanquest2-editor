@@ -4,6 +4,7 @@
 
 const app = root.TQ2App;
 const G = app.G, T = app.T;
+const t = (k, p) => (app && typeof app.t === 'function' ? app.t(k, p) : (p ? k : k));
 const $ = app.$, $$ = app.$$, el = app.el, elHtml = app.elHtml, fmtNum = app.fmtNum;
 const lbl = app.lbl, markDirty = app.markDirty, toast = app.toast;
 
@@ -12,12 +13,12 @@ const openSlots = new Set();
 function renderChar(box, sec) {
   const head = el('div', 'dhead');
   head.appendChild(el('h2', '', sec.label));
-  head.appendChild(el('div', 'path', 'Character Profile'));
+  head.appendChild(el('div', 'path', t('char.profile_head')));
   box.appendChild(head);
   if (sec.key === 'currency') return charCurrency(box, sec.node);
   if (sec.key === 'attr') return charAttr(box, sec.node);
   if (sec.key === 'mastery') return charMastery(box, sec.node);
-  return charGeneric(box, sec.node, 'Gameplay Statistics & Progress');
+  return charGeneric(box, sec.node, t('char.sec_stats'));
 }
 
 function scalarGrid(pl, skip) {
@@ -36,7 +37,7 @@ function charGeneric(box, pl, title) {
   const card = el('div', 'card');
   card.appendChild(el('h3', '', title));
   const name = pl.get && pl.get('m_CharacterName');
-  if (name && name.value instanceof G.Scalar) card.appendChild(el('div', 'hint small2', 'Character Name: ' + name.value.v));
+  if (name && name.value instanceof G.Scalar) card.appendChild(el('div', 'hint small2', t('char.char_name', { name: name.value.v })));
   card.appendChild(scalarGrid(pl));
   box.appendChild(card);
 }
@@ -48,7 +49,7 @@ function abilityRow(entry, id) {
   const top = el('div', 'arow');
   top.appendChild(el('span', 'ge', name));
   if (ip && ip.value instanceof G.Scalar) {
-    const f = app.scalarField('Rank', ip.value);
+    const f = app.scalarField(t('char.rank'), ip.value);
     f.style.maxWidth = '130px';
     top.appendChild(f);
   }
@@ -65,7 +66,7 @@ function abilityRow(entry, id) {
     if (x instanceof G.Scalar && x.v && x.v !== 'None') used++;
   }
   if (nSlots) {
-    const btn = el('button', 'btn tiny ghost', (openSlots.has(id) ? '▾ ' : '▸ ') + 'Configure Slots (' + used + '/' + nSlots + ')');
+    const btn = el('button', 'btn tiny ghost', (openSlots.has(id) ? '▾ ' : '▸ ') + t('char.configure_slots', { used, total: nSlots }));
     btn.onclick = () => {
       openSlots.has(id) ? openSlots.delete(id) : openSlots.add(id);
       if (app.render) app.render();
@@ -88,7 +89,7 @@ function abilityRow(entry, id) {
     if (mods && mods.value instanceof G.Arr) mods.value.items.forEach((x, i) => {
       const mc = x.body.get('ModifierClass'), lv = x.body.get('Level');
       const row = el('div', 'arow effect');
-      row.appendChild(el('span', 'kind k-Prefix', 'Modifier ' + (i + 1)));
+      row.appendChild(el('span', 'kind k-Prefix', t('char.modifier_slot', { n: i + 1 })));
       row.appendChild(app.slotSelect(CAT.m, mc.value.v, name, v => {
         if (!v) {
           mc.value.set('None');
@@ -103,7 +104,7 @@ function abilityRow(entry, id) {
         if (app.render) app.render();
       }, takenMods));
       if (lv && lv.value instanceof G.Scalar) {
-        const f = app.scalarField('Tier', lv.value);
+        const f = app.scalarField(t('char.tier'), lv.value);
         f.style.maxWidth = '100px';
         row.appendChild(f);
       }
@@ -112,7 +113,7 @@ function abilityRow(entry, id) {
     if (feats && feats.value instanceof G.Arr) feats.value.items.forEach((x, i) => {
       if (!(x instanceof G.Scalar)) return;
       const row = el('div', 'arow effect');
-      row.appendChild(el('span', 'kind k-Suffix', 'Feat ' + (i + 1)));
+      row.appendChild(el('span', 'kind k-Suffix', t('char.feat_slot', { n: i + 1 })));
       row.appendChild(app.slotSelect(CAT.f, x.v, name, v => {
         x.set(v || 'None');
         markDirty();
@@ -139,13 +140,13 @@ function charCurrency(box, cur) {
   cardHeader.style.justifyContent = 'space-between';
   cardHeader.style.marginBottom = '10px';
 
-  const h3 = el('h3', '', 'Currencies, Materials & Quest Spending');
+  const h3 = el('h3', '', t('char.cur_card_title'));
   h3.style.margin = '0';
   cardHeader.appendChild(h3);
 
   // Sync all button to fix negative computed spent
-  const syncAllBtn = el('button', 'btn tiny ghost', '⚡ Sync All to Bag (Fix Negative Spent)');
-  syncAllBtn.title = 'Sets Total Earned = Held in Bag for any currency where Bag holdings exceed Total Earned, fixing negative spent values.';
+  const syncAllBtn = el('button', 'btn tiny ghost', t('char.sync_all_btn'));
+  syncAllBtn.title = t('char.sync_all_title');
   syncAllBtn.onclick = () => {
     let fixed = 0;
     for (const e of cur.entries) {
@@ -158,23 +159,28 @@ function charCurrency(box, cur) {
     if (fixed > 0) {
       markDirty();
       if (app.render) app.render();
-      toast(`Synced ${fixed} currency totals to bag holdings!`, 'succ');
+      toast(t('char.sync_all_toast', { count: fixed }), 'succ');
     } else {
-      toast('All currencies already have Total Earned ≥ Held in Bag.', 'info');
+      toast(t('char.sync_all_none'), 'info');
     }
   };
   cardHeader.appendChild(syncAllBtn);
   card.appendChild(cardHeader);
 
-  const hintBox = elHtml('div', 'hint small2 banner-alert',
-    '<b>Quest Spending Logic:</b> Titan Quest II tracks quest spending thresholds dynamically as <code>Spent = Total Earned − Held in Bag</code>. When editing inventory quantities directly, ensure <b>Total Earned</b> is equal to or greater than <b>Held in Bag</b> so quest counters remain valid and non-negative.'
-  );
+  const isVi = (app.getLanguage && app.getLanguage() === 'vi');
+  const hintText = isVi
+    ? '<b>Cơ chế Tiêu hao:</b> TQ2 tính toán số lượng đã chi tiêu tự động bằng công thức <code>Đã Tiêu = Tổng Đã Kiếm − Trong Túi</code>. Khi sửa số lượng trong túi, hãy đảm bảo <b>Tổng Đã Kiếm</b> luôn lớn hơn hoặc bằng <b>Trong Túi</b> để tránh lỗi tiêu hao âm.'
+    : '<b>Quest Spending Logic:</b> Titan Quest II tracks quest spending thresholds dynamically as <code>Spent = Total Earned − Held in Bag</code>. When editing inventory quantities directly, ensure <b>Total Earned</b> is equal to or greater than <b>Held in Bag</b> so quest counters remain valid and non-negative.';
+  const hintBox = elHtml('div', 'hint small2 banner-alert', hintText);
   hintBox.style.marginBottom = '12px';
   card.appendChild(hintBox);
 
   const tbl = el('div', 'ctab');
   const hdr = el('div', 'crow chead');
-  ['Currency / Material', 'Total Earned', 'Held in Bag', 'Computed Spent'].forEach(h => hdr.appendChild(el('span', '', h)));
+  const headers = isVi
+    ? ['Loại Tiền / Nguyên liệu', 'Tổng Đã Kiếm', 'Trong Túi đồ', 'Đã Tiêu (Tính toán)']
+    : ['Currency / Material', 'Total Earned', 'Held in Bag', 'Computed Spent'];
+  headers.forEach(h => hdr.appendChild(el('span', '', h)));
   tbl.appendChild(hdr);
 
   for (const e of cur.entries) {
