@@ -181,6 +181,21 @@ h1 span {
   background: rgba(229, 184, 87, 0.25);
   color: #fff;
 }
+.btn.lang-switcher {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-card);
+  color: var(--text-main);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn.lang-switcher:hover {
+  background: rgba(229, 184, 87, 0.15);
+  border-color: var(--gold-primary);
+  color: var(--gold-glow);
+  box-shadow: 0 0 10px rgba(229, 184, 87, 0.3);
+}
 .btn.btn-save-direct {
   background: linear-gradient(180deg, #10b981 0%, #059669 100%);
   border: 1px solid #34d399;

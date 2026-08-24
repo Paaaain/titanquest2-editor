@@ -15,10 +15,6 @@ const DICT = {
       profile_switch_title: 'Click to switch between character profiles in your SaveGames folder',
       reload_folder: 'Reload: {name}',
       reload_folder_title: 'Instantly reload saves from your previously selected folder',
-      download_huy: 'Download Huy Save (.zip)',
-      download_huy_title: 'Download complete fixed Huy save files (.zip archive)',
-      load_huy: 'Load Huy (SaveGames)',
-      load_huy_title: 'Instantly load Huy (Level 36) from your SaveGames folder for testing',
       select_folder: 'Select Folder',
       select_folder_title: 'Select a SaveGames folder (e.g. D:\\TQ2Saves) for 1-click loading & direct overwriting',
       open_files: 'Open .sav Files',
@@ -77,7 +73,6 @@ const DICT = {
       title: 'Titan Quest II Character & Item Editor',
       desc: 'Select your SaveGames folder or .sav files to automatically discover all your character profiles in a single unified view. Runs 100% offline in your browser.',
       reload_last: 'Reload Previous Folder ({name})',
-      load_huy: 'Load Huy (SaveGames Folder)',
       select_folder: 'Select Folder',
       select_files: 'Select .sav Files (Ctrl+A)',
       card1_title: '👤 Single Unified Character View',
@@ -252,6 +247,55 @@ const DICT = {
       sync_row_btn: 'Sync Total = Bag'
     },
 
+    // Gameplay Effects
+    effects: {
+      stat_modifier: 'Stat Modifier',
+      physical_damage_flat: '+ Flat Physical Damage',
+      physical_damage: '+ % Physical Damage',
+      attack_speed: '+ % Attack Speed',
+      cast_speed: '+ % Cast Speed',
+      move_speed: '+ % Movement Speed',
+      cooldown_speed: '+ % Cooldown Speed',
+      crit_chance: '+ % Critical Strike Chance',
+      crit_dmg: '+ % Critical Damage',
+      attack_cast_speed: '+ % Attack & Cast Speed',
+      energy_regen: '+ Energy Regen / sec',
+      energy_barrier: '+ Energy Barrier',
+      less_energy_reserved: 'Less % Energy Reserved',
+      res_fire: '+ % Fire Resistance',
+      res_cold: '+ % Cold Resistance',
+      res_lightning: '+ % Lightning Resistance',
+      res_poison: '+ % Poison Resistance',
+      res_physical: '+ % Physical Resistance',
+      res_impair: '+ % Impairment Resistance',
+      res_ailment: '+ % Ailment Resistance',
+      res_all: '+ % All Resistances',
+      might: '+ Might',
+      agility: '+ Agility',
+      knowledge: '+ Knowledge',
+      vigor: '+ Vigor',
+      max_energy: '+ Max Energy',
+      max_health: '+ Max Health',
+      all_damage: '+ % All Damage',
+      speed: '+ % Speed',
+      skill_activations: '+ % Skill Activations',
+      fire_damage: '+ % Fire Damage',
+      cold_damage: '+ % Cold Damage',
+      lightning_damage: '+ % Lightning Damage',
+      poison_damage: '+ % Poison Damage',
+      pierce_damage: '+ % Pierce Damage',
+      vitality_damage: '+ % Vitality Damage',
+      spell_damage: '+ % Spell Damage',
+      area_damage: '+ % Area Damage',
+      projectile_damage: '+ % Projectile Damage',
+      strike_damage: '+ % Strike Damage',
+      ailment_chance: '+ % Ailment Chance',
+      ailment_power: '+ % Ailment Power',
+      potion_instant_recovery: '+ % Instant Health Recovery',
+      potion_charges_consumed: 'Less Charges Consumed',
+      potion_effect_duration: '+ % Potion Effect Duration'
+    },
+
     // Item Editor
     item: {
       select_prompt: 'Select an item or a character section from the list on the left to edit.',
@@ -341,10 +385,6 @@ const DICT = {
       profile_switch_title: 'Bấm để chuyển đổi giữa các nhân vật trong thư mục SaveGames',
       reload_folder: 'Tải lại: {name}',
       reload_folder_title: 'Tải lại ngay các file save từ thư mục đã chọn trước đó',
-      download_huy: 'Tải Save Huy (.zip)',
-      download_huy_title: 'Tải bộ file save Huy đầy đủ chuẩn đã sửa lỗi (.zip archive)',
-      load_huy: 'Nạp Huy (SaveGames)',
-      load_huy_title: 'Tải nhanh nhân vật Huy (Level 36) từ thư mục SaveGames để kiểm tra',
       select_folder: 'Chọn Thư mục',
       select_folder_title: 'Chọn thư mục SaveGames (VD: D:\\TQ2Saves) để nạp 1-chạm & lưu ghi đè trực tiếp',
       open_files: 'Mở File .sav',
@@ -403,7 +443,6 @@ const DICT = {
       title: 'Trình chỉnh sửa Nhân vật & Trang bị Titan Quest II',
       desc: 'Chọn thư mục SaveGames hoặc các file .sav để tự động nhận diện tất cả nhân vật trong một giao diện hợp nhất. Hoạt động 100% offline ngay trên trình duyệt.',
       reload_last: 'Tải lại Thư mục trước ({name})',
-      load_huy: 'Nạp Huy (Thư mục SaveGames)',
       select_folder: 'Chọn Thư mục',
       select_files: 'Chọn File .sav (Ctrl+A)',
       card1_title: '👤 Giao diện Nhân vật Hợp nhất',
@@ -578,6 +617,55 @@ const DICT = {
       sync_row_btn: 'Đồng bộ Tổng = Túi'
     },
 
+    // Gameplay Effects
+    effects: {
+      stat_modifier: 'Dòng Chỉ số',
+      physical_damage_flat: '+ Sát thương Vật lý',
+      physical_damage: '+ % Sát thương Vật lý',
+      attack_speed: '+ % Tốc độ Đánh',
+      cast_speed: '+ % Tốc độ Niệm phép',
+      move_speed: '+ % Tốc độ Di chuyển',
+      cooldown_speed: '+ % Tốc độ Hồi chiêu',
+      crit_chance: '+ % Tỷ lệ Chí mạng',
+      crit_dmg: '+ % Sát thương Chí mạng',
+      attack_cast_speed: '+ % Tốc độ Đánh & Niệm phép',
+      energy_regen: '+ Hồi Năng lượng / giây',
+      energy_barrier: '+ Khiên Năng lượng (Barrier)',
+      less_energy_reserved: 'Giảm % Năng lượng Duy trì (Reserved)',
+      res_fire: '+ % Kháng Lửa',
+      res_cold: '+ % Kháng Băng',
+      res_lightning: '+ % Kháng Sét',
+      res_poison: '+ % Kháng Độc',
+      res_physical: '+ % Kháng Vật lý',
+      res_impair: '+ % Kháng Làm suy yếu',
+      res_ailment: '+ % Kháng Hiệu ứng Xấu',
+      res_all: '+ % Tất cả Kháng nguyên tố',
+      might: '+ Điểm Sức mạnh (Might)',
+      agility: '+ Điểm Khéo léo (Agility)',
+      knowledge: '+ Điểm Tri thức (Knowledge)',
+      vigor: '+ Điểm Sinh lực (Vigor)',
+      max_energy: '+ Năng lượng Tối đa',
+      max_health: '+ Máu Tối đa',
+      all_damage: '+ % Toàn bộ Sát thương',
+      speed: '+ % Toàn bộ Tốc độ',
+      skill_activations: '+ % Kích hoạt Kỹ năng',
+      fire_damage: '+ % Sát thương Lửa',
+      cold_damage: '+ % Sát thương Băng',
+      lightning_damage: '+ % Sát thương Sét',
+      poison_damage: '+ % Sát thương Độc',
+      pierce_damage: '+ % Sát thương Xuyên giáp (Pierce)',
+      vitality_damage: '+ % Sát thương Sinh lực (Vitality)',
+      spell_damage: '+ % Sát thương Phép thuật',
+      area_damage: '+ % Sát thương Diện rộng (AoE)',
+      projectile_damage: '+ % Sát thương Đạn bay (Projectile)',
+      strike_damage: '+ % Sát thương Đòn đánh',
+      ailment_chance: '+ % Tỷ lệ Gây hiệu ứng xấu',
+      ailment_power: '+ % Sức mạnh Hiệu ứng xấu',
+      potion_instant_recovery: '+ % Hồi máu Ngay lập tức',
+      potion_charges_consumed: 'Tiêu hao Ít Lần dùng hơn',
+      potion_effect_duration: '+ % Thời gian Tác dụng của Bình'
+    },
+
     // Item Editor
     item: {
       select_prompt: 'Chọn một vật phẩm hoặc một mục nhân vật từ danh sách bên trái để chỉnh sửa.',
@@ -689,10 +777,11 @@ function setLanguage(lang, triggerRender = true) {
   if (triggerRender && root.TQ2App && typeof root.TQ2App.render === 'function') {
     root.TQ2App.render();
   }
+  return currentLang;
 }
 
 function toggleLanguage() {
-  setLanguage(currentLang === 'vi' ? 'en' : 'vi', true);
+  return setLanguage(currentLang === 'vi' ? 'en' : 'vi', true);
 }
 
 function t(path, params = {}) {

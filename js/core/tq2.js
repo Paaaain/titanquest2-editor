@@ -37,33 +37,33 @@ function collectContainers(save) {
 }
 
 function containerLabel(path, idx) {
-  if (path.indexOf('m_Equipment') >= 0) return (t && t('containers.m_Equipment')) || 'Trang bị Đang mặc (Equipped Gear)';
+  if (path.indexOf('m_Equipment') >= 0 || path.indexOf('PlayerEquipment') >= 0) return (t && t('containers.m_Equipment')) || 'Trang bị Đang mặc';
 
   if (path.indexOf('PlayerState/m_Inventories') >= 0 || (path.indexOf('m_Inventories') >= 0 && path.indexOf('Caravan') < 0)) {
     const m = path.match(/m_Inventories(?:\[(\d+)\])?/);
     const arrIdx = m && m[1] !== undefined ? parseInt(m[1]) : 0;
     switch (arrIdx) {
-      case 0: return (t && t('containers.backpack_main')) || 'Túi đồ Hành trang (Backpack Inventory)';
-      case 1: return (t && t('containers.backpack_special')) || 'Túi đồ · Ô Đặc biệt (Backpack Special Slot)';
-      case 2: return (t && t('containers.quest_pouch')) || 'Túi Đồ Nhiệm vụ (Quest Items & Pouch)';
-      case 3: return (t && t('containers.personal_stash_1')) || 'Rương Cá nhân Tab 1 (Personal Stash Tab 1)';
-      case 4: return (t && t('containers.personal_stash_2')) || 'Rương Cá nhân Tab 2 (Personal Stash Tab 2)';
-      default: return (t && t('containers.personal_stash_n', { n: arrIdx + 1 })) || `Rương Cá nhân Ô ${arrIdx + 1} (Personal Stash ${arrIdx + 1})`;
+      case 0: return (t && t('containers.backpack_main')) || 'Túi đồ Hành trang';
+      case 1: return (t && t('containers.backpack_special')) || 'Túi đồ · Ô Đặc biệt';
+      case 2: return (t && t('containers.quest_pouch')) || 'Túi Đồ Nhiệm vụ';
+      case 3: return (t && t('containers.personal_stash_1')) || 'Rương Cá nhân Tab 1';
+      case 4: return (t && t('containers.personal_stash_2')) || 'Rương Cá nhân Tab 2';
+      default: return (t && t('containers.personal_stash_n', { n: arrIdx + 1 })) || `Rương Cá nhân Ô ${arrIdx + 1}`;
     }
   }
 
   if (path.indexOf('SoloSelfFoundCaravan') >= 0) {
-    if (path.indexOf('m_SharedCurrenciesInventory') >= 0) return (t && t('containers.caravan_materials')) || 'Đoàn buôn · Kho Nguyên liệu (Caravan Materials)';
-    const m = path.match(/m_Inventories(?:\[(\d+)\])?/);
+    if (path.indexOf('m_SharedCurrenciesInventory') >= 0) return (t && t('containers.caravan_materials')) || 'Đoàn buôn · Kho Nguyên liệu';
+    const m = path.match(/m_Inventories(?:\[(\d+)\])?/) || path.match(/Tab_?(\d+)/i);
     const arrIdx = m && m[1] !== undefined ? parseInt(m[1]) : 0;
-    return (t && t('containers.caravan_stash_n', { n: arrIdx + 1 })) || `Đoàn buôn · Rương Tab ${arrIdx + 1} (Caravan Stash ${arrIdx + 1})`;
+    return (t && t('containers.caravan_stash_n', { n: arrIdx + 1 })) || `Đoàn buôn · Rương Tab ${arrIdx + 1}`;
   }
 
-  if (path.indexOf('CrossCharacterCaravan') >= 0) {
-    if (path.indexOf('m_SharedCurrenciesInventory') >= 0) return (t && t('containers.shared_materials')) || 'Dùng chung · Kho Nguyên liệu (Shared Materials)';
-    const m = path.match(/m_Inventories(?:\[(\d+)\])?/);
+  if (path.indexOf('CrossCharacterCaravan') >= 0 || path.indexOf('Caravan') >= 0) {
+    if (path.indexOf('m_SharedCurrenciesInventory') >= 0) return (t && t('containers.shared_materials')) || 'Dùng chung · Kho Nguyên liệu';
+    const m = path.match(/m_Inventories(?:\[(\d+)\])?/) || path.match(/Tab_?(\d+)/i);
     const arrIdx = m && m[1] !== undefined ? parseInt(m[1]) : 0;
-    return (t && t('containers.shared_stash_n', { n: arrIdx + 1 })) || `Dùng chung · Rương Tab ${arrIdx + 1} (Shared Stash ${arrIdx + 1})`;
+    return (t && t('containers.shared_stash_n', { n: arrIdx + 1 })) || `Dùng chung · Rương Tab ${arrIdx + 1}`;
   }
 
   const parts = path.split('/').filter(Boolean);
@@ -238,6 +238,8 @@ function humanizeEffectName(path, fallback) {
   if (p.includes('perincreasedlightningdmg')) return (t && t('effects.lightning_damage')) || '+ % Lightning Damage';
   if (p.includes('perincreasedpoisondmg')) return (t && t('effects.poison_damage')) || '+ % Poison Damage';
   if (p.includes('perincreasedpiercedmg')) return (t && t('effects.pierce_damage')) || '+ % Pierce Damage';
+  if (p.includes('perincreasedphysicaldmg')) return (t && t('effects.physical_damage')) || '+ % Physical Damage';
+  if (p.includes('physicaldamageflat') || p.includes('physicaldamage_flat') || p.includes('physicaldamage')) return (t && t('effects.physical_damage_flat')) || '+ Flat Physical Damage';
   if (p.includes('perincreasedvitalitydmg')) return (t && t('effects.vitality_damage')) || '+ % Vitality Damage';
   if (p.includes('perincreasedspelldmg')) return (t && t('effects.spell_damage')) || '+ % Spell Damage';
   if (p.includes('perincreasedareadmg')) return (t && t('effects.area_damage')) || '+ % Area Damage';

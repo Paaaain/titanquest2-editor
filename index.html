@@ -25,8 +25,6 @@
       <span>👤</span> <span id="current-profile-label">Nhân vật</span> ▾
     </button>
     <button class="btn btn-reload-folder" id="btn-reload-last-folder" style="display:none;" data-i18n-title="header.reload_folder_title"><span>🔄</span> <span data-i18n="header.reload_folder">Tải lại:</span> <strong id="last-folder-name">Folder</strong></button>
-    <a href="Huy_SaveGames.zip" download="Huy_SaveGames.zip" class="btn" style="background: linear-gradient(135deg, #1e7e34, #28a745); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; padding: 5px 10px;" data-i18n-title="header.download_huy_title"><span>📥</span> <span data-i18n="header.download_huy">Tải Save Huy (.zip)</span></a>
-    <button class="btn folder-btn" id="btn-load-huy" data-i18n-title="header.load_huy_title"><span>⚡</span> <span data-i18n="header.load_huy">Nạp Huy (SaveGames)</span></button>
     <button class="btn folder-btn" id="btn-select-folder" data-i18n-title="header.select_folder_title">
       <span>📂</span> <span data-i18n="header.select_folder">Chọn Thư mục</span>
     </button>
@@ -106,7 +104,6 @@
         </p>
         <div class="hero-btn-row">
           <button class="btn btn-reload-folder" id="btn-hero-reload-last-folder" style="display:none; font-size:13.5px; padding:8px 18px;"><span>🔄</span> <span data-i18n="hero.reload_last">Tải lại Thư mục trước</span> (<span id="last-folder-name-hero">Folder</span>)</button>
-          <button class="btn folder-btn" id="btn-hero-huy" style="font-size:13.5px; padding:8px 18px; background: linear-gradient(180deg, #c5861b 0%, #8c5b0c 100%);"><span>⚡</span> <span data-i18n="hero.load_huy">Nạp Huy (Thư mục SaveGames)</span></button>
           <button class="btn folder-btn" id="btn-hero-folder" style="font-size:13.5px; padding:8px 18px;">
             <span>📂</span> <span data-i18n="hero.select_folder">Chọn Thư mục</span>
           </button>
@@ -166,7 +163,6 @@
 
 <!-- Embedded Data -->
 <script src="js/data/catalog.js?v=20260824_2130"></script>
-<script src="js/data/sample-saves.js?v=20260824_2130"></script>
 
 <!-- Engine & Domain Models -->
 <script src="js/core/zip.js?v=20260824_2130"></script>
