@@ -28,6 +28,11 @@ app.render = render;
 /* Event Initialization */
 if (typeof window !== 'undefined' && window.addEventListener) {
 window.addEventListener('DOMContentLoaded', async () => {
+  // Apply saved language preferences to static DOM
+  if (app.I18N && typeof app.I18N.applyStaticTranslations === 'function') {
+    app.I18N.applyStaticTranslations();
+  }
+
   try {
     await app.loadCatalog();
     const CAT = app.state.CAT;
@@ -40,7 +45,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     log('Catalog initialization failed: ' + e.message, true);
   }
 
+  // Language Switcher
+  const btnLangSwitch = $('#btn-lang-switch');
+  if (btnLangSwitch) {
+    btnLangSwitch.onclick = () => {
+      app.toggleLanguage();
+    };
+  }
+
   // Quick Action Buttons
+  const btnLoadHuy = $('#btn-load-huy');
+  if (btnLoadHuy) btnLoadHuy.onclick = app.loadHuySaveData;
+  const btnHeroHuy = $('#btn-hero-huy');
+  if (btnHeroHuy) btnHeroHuy.onclick = app.loadHuySaveData;
+
   const btnSelectFolder = $('#btn-select-folder');
   if (btnSelectFolder) btnSelectFolder.onclick = app.triggerFolderPicker;
   const btnHeroFolder = $('#btn-hero-folder');
