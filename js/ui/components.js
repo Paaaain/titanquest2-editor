@@ -4,6 +4,7 @@
 
 const app = root.TQ2App;
 const G = app.G, T = app.T;
+const t = (k, p) => (app && typeof app.t === 'function' ? app.t(k, p) : (p ? k : k));
 const $ = app.$, $$ = app.$$, el = app.el, elHtml = app.elHtml, escapeHtml = app.escapeHtml;
 
 function numField(label, value, onChange, step = 1, min = null, max = null) {
