@@ -195,7 +195,7 @@ async function loadProfile(prof, includeStash = true) {
   toast(`Loaded ${prof.charName} into unified view!`, 'succ');
 }
 
-function updateActiveCharacterHeader(name, level, playtime) {
+function updateActiveCharacterHeader(name, level, playtime, classTitle = null) {
   const heroBox = $('#char-hero');
   if (heroBox) heroBox.style.display = 'flex';
   const heroAvatar = $('#hero-avatar');
@@ -203,7 +203,18 @@ function updateActiveCharacterHeader(name, level, playtime) {
   const heroName = $('#hero-name');
   if (heroName) heroName.textContent = name || 'Hero';
   const heroDetails = $('#hero-details');
-  if (heroDetails) heroDetails.textContent = `Level ${level || 1} · Playtime: ${playtime || '0h'}`;
+  if (heroDetails) {
+    let titleStr = classTitle || '';
+    if (!titleStr && app.state && app.state.files && T.getMasteryStatus) {
+      const pLocal = app.state.files.find(f => f.name.includes('Data_PlayerLocal'));
+      const header = app.state.files.find(f => f.name.includes('Header'));
+      if (pLocal) {
+        const ms = T.getMasteryStatus(pLocal.save, header ? header.save : null);
+        if (ms && !ms.isUnblessed) titleStr = ms.masteries.join(' + ');
+      }
+    }
+    heroDetails.textContent = `Level ${level || 1}${titleStr ? ' · ' + titleStr : ''} · Playtime: ${playtime || '0h'}`;
+  }
 
   const switcher = $('#btn-profile-switch');
   if (switcher) switcher.style.display = 'inline-flex';

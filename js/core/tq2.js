@@ -2121,11 +2121,388 @@ function resetAllCraftingHistory(files, markFileDirtyFn) {
   return totalReset;
 }
 
+function createMasteryTitleRaw(tableId = 'Masteries/st_masteries', key = 'mastery_nomastery') {
+  const w = new G.W();
+  w.u32(0); // flags
+  w.u8(11); // HistoryType: StringTableEntry (0x0B)
+  w.str(tableId);
+  w.str(key);
+  return new Uint8Array(w.done());
+}
+
+function getMasteryTitleKeyFromHeader(headerSave) {
+  if (!headerSave || !headerSave.root) return null;
+  const mtProp = headerSave.root.get('m_MasteryTitle');
+  if (!mtProp || !(mtProp.value instanceof G.Raw) || mtProp.value.b.length < 8) return null;
+  try {
+    const r = new G.Reader(mtProp.value.b);
+    r.u32(); // flags
+    const hType = r.u8();
+    if (hType === 11) {
+      const tableId = r.str();
+      const key = r.str();
+      return { tableId, key };
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+function getMasteryStatus(pLocalSave, headerSave) {
+  const localSgds = sgds(pLocalSave);
+  const masterySGD = localSgds.Mastery;
+  let mBody = null;
+  if (masterySGD && masterySGD.body instanceof G.PropList) {
+    const mp = masterySGD.body.get('m_Masteries');
+    if (mp && mp.value && mp.value.body instanceof G.PropList) {
+      mBody = mp.value.body;
+    }
+  }
+
+  const masteries = [];
+  let investedActive = 0;
+  let investedPassive = 0;
+  let investedMastery = 0;
+  let spendableActive = 0;
+  let spendablePassive = 0;
+  let spendableMastery = 0;
+
+  if (mBody) {
+    const actP = mBody.get('ActivePoints');
+    if (actP && actP.value instanceof G.Scalar) spendableActive = actP.value.v;
+    const pasP = mBody.get('PassivePoints');
+    if (pasP && pasP.value instanceof G.Scalar) spendablePassive = pasP.value.v;
+    const masP = mBody.get('MasteryPoints');
+    if (masP && masP.value instanceof G.Scalar) spendableMastery = masP.value.v;
+
+    const mpArr = mBody.get('Masteries');
+    if (mpArr && mpArr.value instanceof G.Arr) {
+      mpArr.value.items.forEach(ms => {
+        masteries.push(masteryName(ms));
+        const imp = ms.body.get('InvestedMasteryPoints');
+        if (imp && imp.value instanceof G.Scalar) investedMastery += imp.value.v;
+
+        const actAb = ms.body.get('ActiveAbilities');
+        if (actAb && actAb.value instanceof G.Arr) {
+          actAb.value.items.forEach(ab => {
+            const ip = ab.body.get('InvestedPoints');
+            if (ip && ip.value instanceof G.Scalar && ip.value.v > 0) investedActive += ip.value.v;
+          });
+        }
+
+        const pasAb = ms.body.get('PassiveAbilities');
+        if (pasAb && pasAb.value instanceof G.Arr) {
+          pasAb.value.items.forEach(ab => {
+            const ip = ab.body.get('InvestedPoints');
+            if (ip && ip.value instanceof G.Scalar && ip.value.v > 0) investedPassive += ip.value.v;
+          });
+        }
+      });
+    }
+  }
+
+  let titleKey = 'mastery_nomastery';
+  if (headerSave) {
+    const tk = getMasteryTitleKeyFromHeader(headerSave);
+    if (tk && tk.key) titleKey = tk.key;
+  }
+
+  return {
+    masteryCount: masteries.length,
+    masteries,
+    masteryTitleKey: titleKey,
+    isUnblessed: masteries.length === 0,
+    investedActive,
+    investedPassive,
+    investedMastery,
+    spendableActive,
+    spendablePassive,
+    spendableMastery,
+    totalActivePool: spendableActive + investedActive,
+    totalPassivePool: spendablePassive + investedPassive,
+    totalMasteryPool: spendableMastery + investedMastery
+  };
+}
+
+function resetCharacterMasteries(pLocalSave, headerSave) {
+  if (!pLocalSave) return { success: false, reason: 'No PlayerLocal save provided' };
+  const localSgds = sgds(pLocalSave);
+  const masterySGD = localSgds.Mastery;
+  if (!masterySGD || !(masterySGD.body instanceof G.PropList)) {
+    return { success: false, reason: 'Mastery SGD not found in PlayerLocal save' };
+  }
+
+  const mProp = masterySGD.body.get('m_Masteries');
+  if (!mProp || !mProp.value || !(mProp.value.body instanceof G.PropList)) {
+    return { success: false, reason: 'm_Masteries struct not found' };
+  }
+
+  const mBody = mProp.value.body;
+  const masteriesArr = mBody.get('Masteries');
+  if (!masteriesArr || !(masteriesArr.value instanceof G.Arr)) {
+    return { success: false, reason: 'Masteries array not found' };
+  }
+
+  let refundedActive = 0;
+  let refundedPassive = 0;
+  let refundedMastery = 0;
+  const removedClasses = [];
+
+  masteriesArr.value.items.forEach(ms => {
+    const mName = masteryName(ms);
+    removedClasses.push(mName);
+
+    const imp = ms.body.get('InvestedMasteryPoints');
+    if (imp && imp.value instanceof G.Scalar) refundedMastery += imp.value.v;
+
+    const actAb = ms.body.get('ActiveAbilities');
+    if (actAb && actAb.value instanceof G.Arr) {
+      actAb.value.items.forEach(ab => {
+        const ip = ab.body.get('InvestedPoints');
+        if (ip && ip.value instanceof G.Scalar && ip.value.v > 0) refundedActive += ip.value.v;
+      });
+    }
+
+    const pasAb = ms.body.get('PassiveAbilities');
+    if (pasAb && pasAb.value instanceof G.Arr) {
+      pasAb.value.items.forEach(ab => {
+        const ip = ab.body.get('InvestedPoints');
+        if (ip && ip.value instanceof G.Scalar && ip.value.v > 0) refundedPassive += ip.value.v;
+      });
+    }
+  });
+
+  // 1. Refund points to spendable pools
+  ensurePointFields(mBody);
+  const actProp = mBody.get('ActivePoints');
+  if (actProp && actProp.value instanceof G.Scalar) {
+    actProp.value.set(actProp.value.v + refundedActive);
+  }
+  const pasProp = mBody.get('PassivePoints');
+  if (pasProp && pasProp.value instanceof G.Scalar) {
+    pasProp.value.set(pasProp.value.v + refundedPassive);
+  }
+  const masProp = mBody.get('MasteryPoints');
+  if (masProp && masProp.value instanceof G.Scalar) {
+    masProp.value.set(masProp.value.v + refundedMastery);
+  }
+
+  // 2. Empty Masteries array
+  masteriesArr.value.items = [];
+  masteriesArr.value.mark();
+
+  // 3. Clear ActiveSustainedAbilities
+  const sustProp = mBody.get('ActiveSustainedAbilities');
+  if (sustProp && sustProp.value instanceof G.Arr) {
+    sustProp.value.items = [];
+    sustProp.value.mark();
+  }
+
+  // 4. Clean up BoundAbilitySets (remove mastery abilities, keep global abilities)
+  const boundProp = mBody.get('BoundAbilitySets');
+  if (boundProp && boundProp.value instanceof G.Arr) {
+    boundProp.value.items.forEach(bSet => {
+      if (bSet instanceof G.Struct && bSet.body instanceof G.PropList) {
+        const abProp = bSet.body.get('AbilityBindings');
+        if (abProp && abProp.value instanceof G.MapV) {
+          abProp.value.pairs = abProp.value.pairs.filter(([k, v]) => {
+            const pDesc = v.body && v.body.get ? v.body.get('pDescription') : null;
+            const descStr = pDesc && pDesc.value ? (pDesc.value.v || '') : '';
+            return !descStr.includes('/Masteries/');
+          });
+          abProp.value.mark();
+        }
+      }
+    });
+    boundProp.value.mark();
+  }
+
+  mBody.mark();
+  masterySGD.body.mark();
+
+  // 5. Update Header m_MasteryTitle if headerSave is available
+  if (headerSave && headerSave.root) {
+    const mtProp = headerSave.root.get('m_MasteryTitle');
+    if (mtProp && mtProp.value instanceof G.Raw) {
+      mtProp.value.b = createMasteryTitleRaw('Masteries/st_masteries', 'mastery_nomastery');
+      mtProp.value.mark();
+      headerSave.root.mark();
+    }
+  }
+
+  return {
+    success: true,
+    refundedActive,
+    refundedPassive,
+    refundedMastery,
+    removedClasses
+  };
+}
+
+function refundCharacterSkillPoints(pLocalSave) {
+  if (!pLocalSave) return { success: false, reason: 'No PlayerLocal save provided' };
+  const localSgds = sgds(pLocalSave);
+  const masterySGD = localSgds.Mastery;
+  if (!masterySGD || !(masterySGD.body instanceof G.PropList)) {
+    return { success: false, reason: 'Mastery SGD not found in PlayerLocal save' };
+  }
+
+  const mProp = masterySGD.body.get('m_Masteries');
+  if (!mProp || !mProp.value || !(mProp.value.body instanceof G.PropList)) {
+    return { success: false, reason: 'm_Masteries struct not found' };
+  }
+
+  const mBody = mProp.value.body;
+  const masteriesArr = mBody.get('Masteries');
+  if (!masteriesArr || !(masteriesArr.value instanceof G.Arr)) {
+    return { success: false, reason: 'Masteries array not found' };
+  }
+
+  let refundedActive = 0;
+  let refundedPassive = 0;
+
+  masteriesArr.value.items.forEach(ms => {
+    const actAb = ms.body.get('ActiveAbilities');
+    if (actAb && actAb.value instanceof G.Arr) {
+      actAb.value.items.forEach(ab => {
+        const ip = ab.body.get('InvestedPoints');
+        if (ip && ip.value instanceof G.Scalar && ip.value.v > 0) {
+          refundedActive += ip.value.v;
+          ip.value.set(0);
+        }
+      });
+      actAb.value.mark();
+    }
+
+    const pasAb = ms.body.get('PassiveAbilities');
+    if (pasAb && pasAb.value instanceof G.Arr) {
+      pasAb.value.items.forEach(ab => {
+        const ip = ab.body.get('InvestedPoints');
+        if (ip && ip.value instanceof G.Scalar && ip.value.v > 0) {
+          refundedPassive += ip.value.v;
+          ip.value.set(0);
+        }
+      });
+      pasAb.value.mark();
+    }
+    ms.body.mark();
+  });
+
+  ensurePointFields(mBody);
+  const actProp = mBody.get('ActivePoints');
+  if (actProp && actProp.value instanceof G.Scalar) {
+    actProp.value.set(actProp.value.v + refundedActive);
+  }
+  const pasProp = mBody.get('PassivePoints');
+  if (pasProp && pasProp.value instanceof G.Scalar) {
+    pasProp.value.set(pasProp.value.v + refundedPassive);
+  }
+
+  mBody.mark();
+  masterySGD.body.mark();
+
+  return {
+    success: true,
+    refundedActive,
+    refundedPassive
+  };
+}
+
+function getAttributeStatus(playerSaveOrPl) {
+  let pl = playerSaveOrPl;
+  if (playerSaveOrPl && playerSaveOrPl.root) {
+    const s = sgds(playerSaveOrPl);
+    if (s.TQ2CharacterAttributes && s.TQ2CharacterAttributes.body instanceof G.PropList) {
+      pl = s.TQ2CharacterAttributes.body;
+    }
+  }
+  if (!pl || !(pl instanceof G.PropList)) return null;
+
+  ensureAttrFields(pl);
+  const getV = n => {
+    const p = pl.get(n);
+    return (p && p.value instanceof G.Scalar) ? p.value.v : 0;
+  };
+
+  const level = getV('m_CharacterLevel');
+  const levelProgress = getV('m_CurrentLevelProgress');
+  const totalAP = getV('m_CharacterAP');
+  const might = getV('m_AttributePointsMight');
+  const agility = getV('m_AttributePointsAgility');
+  const knowledge = getV('m_AttributePointsKnowledge');
+  const vigor = getV('m_AttributePointsVigor');
+  const allocated = might + agility + knowledge + vigor;
+  const freeAP = Math.max(0, totalAP - allocated);
+
+  return {
+    level,
+    levelProgress,
+    totalAP,
+    might,
+    agility,
+    knowledge,
+    vigor,
+    allocated,
+    freeAP
+  };
+}
+
+function resetCharacterAttributes(playerSaveOrPl) {
+  let pl = playerSaveOrPl;
+  if (playerSaveOrPl && playerSaveOrPl.root) {
+    const s = sgds(playerSaveOrPl);
+    if (s.TQ2CharacterAttributes && s.TQ2CharacterAttributes.body instanceof G.PropList) {
+      pl = s.TQ2CharacterAttributes.body;
+    }
+  }
+  if (!pl || !(pl instanceof G.PropList)) return { success: false, reason: 'TQ2CharacterAttributes PropList not found' };
+
+  ensureAttrFields(pl);
+  const getP = n => pl.get(n);
+  const getV = n => {
+    const p = getP(n);
+    return (p && p.value instanceof G.Scalar) ? p.value.v : 0;
+  };
+
+  const mightVal = getV('m_AttributePointsMight');
+  const agilityVal = getV('m_AttributePointsAgility');
+  const knowledgeVal = getV('m_AttributePointsKnowledge');
+  const vigorVal = getV('m_AttributePointsVigor');
+  const totalAllocated = mightVal + agilityVal + knowledgeVal + vigorVal;
+
+  let totalAPVal = getV('m_CharacterAP');
+  if (totalAPVal < totalAllocated) {
+    totalAPVal = totalAllocated;
+    const apProp = getP('m_CharacterAP');
+    if (apProp && apProp.value instanceof G.Scalar) apProp.value.set(totalAPVal);
+  }
+
+  // Set all 4 attributes to 0
+  ['m_AttributePointsMight', 'm_AttributePointsAgility', 'm_AttributePointsKnowledge', 'm_AttributePointsVigor'].forEach(k => {
+    const p = getP(k);
+    if (p && p.value instanceof G.Scalar) p.value.set(0);
+  });
+
+  pl.mark();
+
+  return {
+    success: true,
+    refundedMight: mightVal,
+    refundedAgility: agilityVal,
+    refundedKnowledge: knowledgeVal,
+    refundedVigor: vigorVal,
+    totalRefunded: totalAllocated,
+    totalAP: totalAPVal,
+    freeAP: totalAPVal
+  };
+}
+
 const API = { ensureIntProp, ensureAttrFields, ensurePointFields, ATTR_FIELDS, POINT_FIELDS, earnedCurrencies, setEarned, containerInfos, freeSlot, copyItemTo, findProp, sgds, charSections, readTags, cleanAbilityName, abilityName, masteryName, collectContainers, listItems, prop, pval, affixes, affixField, affixEffects,
   createEffectScalingModifierTag, getEffectScale, setEffectScale,
   setBaseItem, parseUnrealAssetPath, affixShortName, affixKind, affixMeta, affixLocalizedName, affixTierTitle, affixTooltip, humanizeEffectName, friendlyItemName, itemName, humanizeTQ2Item, containerLabel,
   getItemSlotType, getItemSlotLabel, isWeaponSlot, isArmorSlot, isJewelrySlot, checkAffixSlotCompatibility, validateItemAffixes, autoFixItemAffixes,
-  hasCraftingHistory, resetCraftingHistory, resetAllCraftingHistory };
+  hasCraftingHistory, resetCraftingHistory, resetAllCraftingHistory,
+  createMasteryTitleRaw, getMasteryTitleKeyFromHeader, getMasteryStatus, resetCharacterMasteries, refundCharacterSkillPoints,
+  getAttributeStatus, resetCharacterAttributes };
 if (typeof module !== 'undefined' && module.exports) module.exports = API;
 root.TQ2 = API;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

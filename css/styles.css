@@ -1755,3 +1755,41 @@ input[type="number"] { font-family: "JetBrains Mono", monospace; }
   padding-top: 14px;
   border-top: 1px solid var(--border-subtle);
 }
+
+/* Mastery Reset & Danger Button Styles */
+.btn.danger-btn {
+  background: linear-gradient(180deg, #d63031 0%, #9e1c1d 100%);
+  border: 1px solid #ff7675;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(214, 48, 49, 0.35);
+}
+.btn.danger-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ff4757 0%, #b32425 100%);
+  border-color: #ff9f9f;
+  box-shadow: 0 0 14px rgba(255, 71, 87, 0.55);
+  color: #fff;
+}
+
+.badge-gold {
+  background: rgba(229, 184, 87, 0.15) !important;
+  color: var(--gold-primary) !important;
+  border: 1px solid rgba(229, 184, 87, 0.4) !important;
+}
+
+.mastery-status-card {
+  border-left: 3px solid var(--gold-primary);
+}
+
+.unblessed-showcase-card {
+  border: 1px solid rgba(229, 184, 87, 0.3);
+  background: linear-gradient(180deg, rgba(229, 184, 87, 0.05) 0%, rgba(22, 26, 36, 0.6) 100%);
+}
+
+.mastery-catalog-card {
+  transition: transform .15s ease, border-color .15s ease;
+}
+.mastery-catalog-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold-primary) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}

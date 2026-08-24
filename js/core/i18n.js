@@ -244,7 +244,25 @@ const DICT = {
       calc_spent: 'Spent = Total Earned ({earned}) − Bag ({bag})',
       spent_fixed: 'Spent = 0 (Total Earned matched to Bag)',
       spent_negative_fix: 'Fixed: Bag exceeds Total Earned (Total adjusted to {bag})',
-      sync_row_btn: 'Sync Total = Bag'
+      sync_row_btn: 'Sync Total = Bag',
+      mastery_panel_title: 'Mastery Selection & Skill Points',
+      spendable_points_title: 'Spendable Skill Points Pool',
+      reset_mastery_btn: '🔄 Reset Mastery (Clear Class)',
+      reset_mastery_title: 'Wipe chosen masteries, refund 100% of points, and allow picking classes again from scratch.',
+      refund_skills_btn: '⚡ Refund Skill Ranks (Keep Class)',
+      refund_skills_title: 'Reset all ability ranks to 0 and refund points into spendable pools while keeping chosen masteries.',
+      mastery_status_label: 'Current Class / Masteries:',
+      unblessed_title: 'No Masteries Selected (Unblessed)',
+      unblessed_badge: 'Unblessed',
+      unblessed_desc: 'This character currently has no active masteries. When you load this save file into Titan Quest II, the game will present the Mastery selection screen where you can pick any two Masteries and allocate points from scratch.',
+      unblessed_catalog_title: 'Available Masteries in Titan Quest II:',
+      invested_summary: 'Invested Points: <b>{act}</b> Active | <b>{pas}</b> Passive | <b>{mas}</b> Mastery',
+      mastery_tree_title: 'Mastery Tree: {name}',
+      active_abilities_title: 'Active Abilities',
+      passive_abilities_title: 'Passive Abilities',
+      attr_card_title: 'Attributes & Core Stats',
+      reset_attr_btn: '🔄 Reset Attributes',
+      reset_attr_title: 'Reset all allocated Might, Agility, Knowledge, and Vigor points to 0, refunding all points back to your free unspent AP pool.'
     },
 
     // Gameplay Effects
@@ -339,6 +357,21 @@ const DICT = {
       reset_all_confirm_body: 'This will remove the blacksmith modification record (m_CraftingHistory) from ALL items in your active save files, allowing you to re-craft and re-roll items at the Blacksmith in-game.\n\nAre you sure you want to proceed?',
       reset_all_toast: 'Reset blacksmith history on {count} modified item(s)!',
       reset_all_none: 'No items with crafting history were found in current save files.',
+      
+      // Mastery Reset Confirmation
+      reset_mastery_confirm_title: '⚠️ Confirm Reset Masteries / Clear Class?',
+      reset_mastery_confirm_body: 'Are you sure you want to reset all masteries for {name}?\n\n• Classes removed: {classes}\n• Active Skill Points refunded: +{active} pts\n• Passive Skill Points refunded: +{passive} pts\n• Mastery Points refunded: +{mastery} pts\n\nYour action bar bindings for previous mastery skills will be safely cleaned, and character status will be set to Unblessed. Upon loading the game, you can freely pick new masteries and allocate your points from scratch.',
+      reset_mastery_toast: 'Successfully reset masteries for {name}! Refunded {active} Active, {passive} Passive, and {mastery} Mastery points.',
+      refund_skills_confirm_title: '⚡ Confirm Refund Skill Points?',
+      refund_skills_confirm_body: 'This will reset all ability ranks to 0 and refund +{active} Active and +{passive} Passive skill points back into your spendable pool, while keeping your current Masteries ({classes}) intact.\n\nAre you sure you want to proceed?',
+      refund_skills_toast: 'Refunded {active} Active and {passive} Passive skill points!',
+      refund_skills_none: 'No points are currently invested in abilities.',
+      
+      // Attribute Reset Confirmation
+      reset_attr_confirm_title: '⚠️ Confirm Reset Attribute Points?',
+      reset_attr_confirm_body: 'Are you sure you want to reset all attribute points for {name}?\n\n• Might refunded: +{might} pts\n• Agility refunded: +{agility} pts\n• Knowledge refunded: +{knowledge} pts\n• Vigor refunded: +{vigor} pts\n• Total Free AP: +{total} pts\n\nAll attributes will return to base (50 pre-gear), and you will have {totalAP} unspent points to allocate freely.',
+      reset_attr_toast: 'Successfully reset attributes for {name}! {total} Attribute Points are now free to spend.',
+      reset_attr_none: 'No attribute points are currently allocated.',
       
       // Help / Guide
       guide_modal_title: 'Titan Quest II – Save File & Checksum Guide',
@@ -614,7 +647,25 @@ const DICT = {
       calc_spent: 'Đã Tiêu = Tổng Kiếm ({earned}) − Trong Túi ({bag})',
       spent_fixed: 'Đã Tiêu = 0 (Tổng Kiếm bằng số lượng trong Túi)',
       spent_negative_fix: 'Đã sửa: Số trong Túi lớn hơn Tổng Kiếm (Tổng đã chỉnh lên {bag})',
-      sync_row_btn: 'Đồng bộ Tổng = Túi'
+      sync_row_btn: 'Đồng bộ Tổng = Túi',
+      mastery_panel_title: 'Chọn Tinh Thông & Điểm Kỹ Năng',
+      spendable_points_title: 'Kho Điểm Kỹ Năng Khả Dụng',
+      reset_mastery_btn: '🔄 Reset Mastery (Xoá Class & Chọn Lại)',
+      reset_mastery_title: 'Xóa các class đã chọn, hoàn trả 100% điểm kỹ năng & tinh thông, cho phép chọn lại class từ đầu trong game.',
+      refund_skills_btn: '⚡ Tẩy Điểm Kỹ Năng (Giữ Class)',
+      refund_skills_title: 'Đặt lại cấp độ kỹ năng về 0 và hoàn trả điểm Active/Passive mà không xoá class đã chọn.',
+      mastery_status_label: 'Class / Tinh thông Hiện tại:',
+      unblessed_title: 'Chưa Chọn Tinh Thông (Unblessed)',
+      unblessed_badge: 'Chưa chọn Class',
+      unblessed_desc: 'Nhân vật hiện chưa kích hoạt Tinh thông (Class). Khi bạn lưu và mở file save này trong Titan Quest II, game sẽ tự động hiện giao diện "Choose a Mastery" để bạn chọn lại 2 Tinh thông bất kỳ và nâng điểm tự do từ đầu.',
+      unblessed_catalog_title: 'Danh sách 6 Tinh thông trong Titan Quest II:',
+      invested_summary: 'Điểm đã nâng: <b>{act}</b> Chủ động (Active) | <b>{pas}</b> Bị động (Passive) | <b>{mas}</b> Tinh thông (Mastery)',
+      mastery_tree_title: 'Cây Tinh Thông: {name}',
+      active_abilities_title: 'Kỹ năng Chủ động (Active)',
+      passive_abilities_title: 'Kỹ năng Bị động (Passive)',
+      attr_card_title: 'Thuộc Tính & Chỉ Số Cốt Lõi',
+      reset_attr_btn: '🔄 Reset Thuộc Tính',
+      reset_attr_title: 'Đặt toàn bộ điểm Sức mạnh, Khéo léo, Tri thức, Sinh lực về 0 và hoàn trả 100% về kho AP tự do.'
     },
 
     // Gameplay Effects
@@ -709,6 +760,21 @@ const DICT = {
       reset_all_confirm_body: 'Thao tác này sẽ xoá bản ghi lịch sử rèn (m_CraftingHistory) của TẤT CẢ trang bị trong file save hiện tại, cho phép bạn rèn lại và tái tạo dòng tại Thợ rèn trong game.\n\nBạn có chắc chắn muốn thực hiện?',
       reset_all_toast: 'Đã xóa lịch sử thợ rèn trên {count} trang bị!',
       reset_all_none: 'Không tìm thấy trang bị nào có lịch sử rèn trong các file save hiện tại.',
+      
+      // Mastery Reset Confirmation
+      reset_mastery_confirm_title: '⚠️ Xác Nhận Reset Mastery / Xoá Class?',
+      reset_mastery_confirm_body: 'Bạn có chắc chắn muốn tẩy tinh thông cho nhân vật {name}?\n\n• Class sẽ bị xoá: {classes}\n• Điểm kỹ năng Chủ động hoàn trả: +{active} điểm\n• Điểm kỹ năng Bị động hoàn trả: +{passive} điểm\n• Điểm phát triển Tinh thông hoàn trả: +{mastery} điểm\n\nThanh phím tắt Action Bar sẽ được dọn dẹp an toàn và danh hiệu nhân vật đổi về Unblessed. Khi vào game, bạn có thể tự do chọn lại Class và nâng điểm lại từ đầu.',
+      reset_mastery_toast: 'Đã reset tinh thông thành công cho {name}! Hoàn trả {active} Active, {passive} Passive, và {mastery} điểm Tinh thông.',
+      refund_skills_confirm_title: '⚡ Xác Nhận Hoàn Trả Điểm Kỹ Năng?',
+      refund_skills_confirm_body: 'Thao tác này sẽ đặt cấp độ của tất cả kỹ năng về 0 và hoàn trả +{active} điểm Active và +{passive} điểm Passive vào kho điểm khả dụng, đồng thời giữ nguyên các Class ({classes}) hiện tại.\n\nBạn có muốn tiếp tục?',
+      refund_skills_toast: 'Đã hoàn trả {active} điểm Active và {passive} điểm Passive!',
+      refund_skills_none: 'Hiện không có kỹ năng nào đang được nâng điểm.',
+
+      // Attribute Reset Confirmation
+      reset_attr_confirm_title: '⚠️ Xác Nhận Reset Điểm Thuộc Tính?',
+      reset_attr_confirm_body: 'Bạn có chắc chắn muốn reset toàn bộ điểm thuộc tính của nhân vật {name}?\n\n• Sức mạnh (Might): +{might} điểm hoàn trả\n• Khéo léo (Agility): +{agility} điểm hoàn trả\n• Tri thức (Knowledge): +{knowledge} điểm hoàn trả\n• Sinh lực (Vigor): +{vigor} điểm hoàn trả\n• Tổng điểm AP tự do nhận lại: +{total} điểm\n\nTất cả 4 chỉ số sẽ trở về mức cơ bản (50), và bạn sẽ có {totalAP} điểm AP tự do để cộng lại tùy ý.',
+      reset_attr_toast: 'Đã reset điểm thuộc tính thành công cho {name}! {total} điểm AP hiện đang sẵn sàng để nâng lại.',
+      reset_attr_none: 'Hiện không có điểm thuộc tính nào đang được nâng.',
 
       // Help / Guide
       guide_modal_title: 'Titan Quest II – Hướng Dẫn File Save & Checksum',

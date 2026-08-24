@@ -305,14 +305,105 @@ function charCurrency(box, cur) {
   box.appendChild(card);
 }
 
+function showResetAttributesModal(pl, attrFile, status) {
+  const existing = $('.modal-overlay');
+  if (existing) existing.remove();
+
+  const charName = (app.state.activeProfile && app.state.activeProfile.charName) || 'Hero';
+  const overlay = el('div', 'modal-overlay');
+  const box = el('div', 'modal-box');
+  box.style.maxWidth = '520px';
+
+  box.appendChild(el('h3', '', t('modals.reset_attr_confirm_title') || '⚠️ Confirm Reset Attribute Points?'));
+
+  const descP = el('p', '', t('modals.reset_attr_confirm_body', {
+    name: charName,
+    might: status.might,
+    agility: status.agility,
+    knowledge: status.knowledge,
+    vigor: status.vigor,
+    total: status.allocated,
+    totalAP: status.totalAP
+  }));
+  descP.style.lineHeight = '1.6';
+  descP.style.whiteSpace = 'pre-line';
+  box.appendChild(descP);
+
+  const pillsWrap = el('div', 'reset-refund-pills');
+  pillsWrap.style.display = 'grid';
+  pillsWrap.style.gridTemplateColumns = 'repeat(4, 1fr)';
+  pillsWrap.style.gap = '8px';
+  pillsWrap.style.margin = '14px 0';
+
+  const ATTRS_LIST = [
+    { label: 'Might', val: status.might, color: 'var(--gold-primary)' },
+    { label: 'Agility', val: status.agility, color: '#3ba7ff' },
+    { label: 'Knowledge', val: status.knowledge, color: '#c576ff' },
+    { label: 'Vigor', val: status.vigor, color: '#32d583' },
+  ];
+
+  ATTRS_LIST.forEach(at => {
+    const cardEl = el('div', 'card');
+    cardEl.style.padding = '8px';
+    cardEl.style.textAlign = 'center';
+    cardEl.innerHTML = `<div style="font-size:11px;color:var(--text-dim);">${at.label}</div><div style="font-size:16px;font-weight:bold;color:${at.color};">+${at.val}</div>`;
+    pillsWrap.appendChild(cardEl);
+  });
+  box.appendChild(pillsWrap);
+
+  const actions = el('div', 'modal-actions');
+  const cancelBtn = el('button', 'btn ghost tiny', t('modals.modal_close') || 'Cancel');
+  cancelBtn.onclick = () => overlay.remove();
+  actions.appendChild(cancelBtn);
+
+  const confirmBtn = el('button', 'btn danger-btn', t('char.reset_attr_btn') || 'Reset Attributes');
+  confirmBtn.onclick = () => {
+    overlay.remove();
+    const res = T.resetCharacterAttributes(pl);
+    if (res.success) {
+      if (attrFile) attrFile.dirty = true;
+      markDirty();
+      if (app.render) app.render();
+      toast(t('modals.reset_attr_toast', {
+        name: charName,
+        total: res.totalRefunded
+      }), 'succ');
+    } else {
+      toast('Failed to reset attributes: ' + res.reason, 'err');
+    }
+  };
+  actions.appendChild(confirmBtn);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
 function charAttr(box, pl) {
   T.ensureAttrFields(pl);
   const card = el('div', 'card');
-  card.appendChild(el('h3', '', 'Attributes & Core Stats'));
+
+  const cardHeader = el('div', 'dhead');
+  cardHeader.style.display = 'flex';
+  cardHeader.style.alignItems = 'center';
+  cardHeader.style.justifyContent = 'space-between';
+  cardHeader.style.marginBottom = '12px';
+
+  const h3 = el('h3', '', t('char.attr_card_title') || 'Attributes & Core Stats');
+  h3.style.margin = '0';
+  cardHeader.appendChild(h3);
+
   const val = n => {
     const p = pl.get(n);
     return p && p.value instanceof G.Scalar ? p.value.v : 0;
   };
+
+  const attrFile = app.state.files.find(f => f.name.includes('Data_Player')) || app.state.files[0];
+
+  const resetBtn = el('button', 'btn tiny danger-btn', t('char.reset_attr_btn') || '🔄 Reset Attributes');
+  resetBtn.title = t('char.reset_attr_title') || 'Reset all attribute points back to unspent free AP';
+  cardHeader.appendChild(resetBtn);
+  card.appendChild(cardHeader);
 
   const summaryEl = el('div', 'hint small2');
   summaryEl.style.marginTop = '14px';
@@ -322,10 +413,19 @@ function charAttr(box, pl) {
   freeApBadge.style.fontSize = '11px';
 
   const updateSummary = () => {
-    const totalPool = val('m_CharacterAP');
-    const spent = val('m_AttributePointsMight') + val('m_AttributePointsAgility')
-                + val('m_AttributePointsKnowledge') + val('m_AttributePointsVigor');
-    const freeAP = Math.max(0, totalPool - spent);
+    const status = T.getAttributeStatus(pl);
+    const totalPool = status ? status.totalAP : val('m_CharacterAP');
+    const spent = status ? status.allocated : (val('m_AttributePointsMight') + val('m_AttributePointsAgility') + val('m_AttributePointsKnowledge') + val('m_AttributePointsVigor'));
+    const freeAP = status ? status.freeAP : Math.max(0, totalPool - spent);
+
+    resetBtn.disabled = (spent === 0);
+    resetBtn.onclick = () => {
+      if (status && status.allocated > 0) {
+        showResetAttributesModal(pl, attrFile, status);
+      } else {
+        toast(t('modals.reset_attr_none') || 'No attribute points are currently allocated.', 'info');
+      }
+    };
 
     freeApBadge.innerHTML = `Unspent Free AP: <b style="color:${freeAP > 0 ? 'var(--gold-primary)' : 'var(--text-muted)'}">${freeAP} pts</b>`;
     summaryEl.innerHTML = `<b>Attribute Summary:</b> Total AP Pool: <b>${totalPool}</b> pts | Allocated: <b>${spent}</b> pts (Might: ${val('m_AttributePointsMight')}, Agility: ${val('m_AttributePointsAgility')}, Knowledge: ${val('m_AttributePointsKnowledge')}, Vigor: ${val('m_AttributePointsVigor')}) | Unspent / Free to Spend: <b style="color:${freeAP > 0 ? 'var(--gold-primary)' : 'inherit'}">${freeAP}</b> pts.<br>
@@ -451,49 +551,330 @@ function charAttr(box, pl) {
   box.appendChild(card);
 }
 
+function showResetMasteryModal(pLocalFile, headerFile, status) {
+  const existing = $('.modal-overlay');
+  if (existing) existing.remove();
+
+  const charName = (app.state.activeProfile && app.state.activeProfile.charName) || 'Hero';
+  const classesStr = status.masteries.join(' + ') || 'Masteries';
+
+  const overlay = el('div', 'modal-overlay');
+  const box = el('div', 'modal-box');
+  box.style.maxWidth = '560px';
+
+  box.appendChild(el('h3', '', t('modals.reset_mastery_confirm_title')));
+
+  const descP = el('p', '', t('modals.reset_mastery_confirm_body', {
+    name: charName,
+    classes: classesStr,
+    active: status.investedActive,
+    passive: status.investedPassive,
+    mastery: status.investedMastery
+  }));
+  descP.style.lineHeight = '1.6';
+  descP.style.whiteSpace = 'pre-line';
+  box.appendChild(descP);
+
+  const pillsWrap = el('div', 'reset-refund-pills');
+  pillsWrap.style.display = 'grid';
+  pillsWrap.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  pillsWrap.style.gap = '10px';
+  pillsWrap.style.margin = '14px 0';
+
+  const p1 = el('div', 'card');
+  p1.style.padding = '10px';
+  p1.style.textAlign = 'center';
+  p1.innerHTML = `<div style="font-size:11px;color:var(--text-dim);">Active Points</div><div style="font-size:18px;font-weight:bold;color:var(--gold-primary);">+${status.investedActive}</div>`;
+  pillsWrap.appendChild(p1);
+
+  const p2 = el('div', 'card');
+  p2.style.padding = '10px';
+  p2.style.textAlign = 'center';
+  p2.innerHTML = `<div style="font-size:11px;color:var(--text-dim);">Passive Points</div><div style="font-size:18px;font-weight:bold;color:#4ecdc4;">+${status.investedPassive}</div>`;
+  pillsWrap.appendChild(p2);
+
+  const p3 = el('div', 'card');
+  p3.style.padding = '10px';
+  p3.style.textAlign = 'center';
+  p3.innerHTML = `<div style="font-size:11px;color:var(--text-dim);">Mastery Points</div><div style="font-size:18px;font-weight:bold;color:#b388ff;">+${status.investedMastery}</div>`;
+  pillsWrap.appendChild(p3);
+
+  box.appendChild(pillsWrap);
+
+  const alertBox = elHtml('div', 'hint small2 banner-alert',
+    (app.getLanguage && app.getLanguage() === 'vi')
+      ? '<b>Lưu ý:</b> Sau khi Reset, bạn hãy bấm <b>Lưu & Ghi đè</b> (hoặc Xuất .zip). Khi vào game Titan Quest II, mở cây kỹ năng sẽ hiện bảng chọn lại 2 Tinh thông mới từ đầu.'
+      : '<b>Note:</b> After resetting, click <b>Save & Overwrite</b> (or Export .zip). Upon loading Titan Quest II, opening the Masteries screen will present the selection UI allowing you to pick 2 masteries from scratch.'
+  );
+  alertBox.style.marginBottom = '16px';
+  box.appendChild(alertBox);
+
+  const actions = el('div', 'modal-actions');
+  const cancelBtn = el('button', 'btn ghost tiny', t('modals.modal_close') || 'Cancel');
+  cancelBtn.onclick = () => overlay.remove();
+  actions.appendChild(cancelBtn);
+
+  const confirmBtn = el('button', 'btn danger-btn', t('char.reset_mastery_btn') || 'Confirm Reset');
+  confirmBtn.onclick = () => {
+    overlay.remove();
+    const res = T.resetCharacterMasteries(pLocalFile.save, headerFile ? headerFile.save : null);
+    if (res.success) {
+      pLocalFile.dirty = true;
+      if (headerFile) headerFile.dirty = true;
+      markDirty();
+      if (app.render) app.render();
+      toast(t('modals.reset_mastery_toast', {
+        name: charName,
+        active: res.refundedActive,
+        passive: res.refundedPassive,
+        mastery: res.refundedMastery
+      }), 'succ');
+    } else {
+      toast('Failed to reset masteries: ' + res.reason, 'err');
+    }
+  };
+  actions.appendChild(confirmBtn);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function showRefundSkillsModal(pLocalFile, status) {
+  const existing = $('.modal-overlay');
+  if (existing) existing.remove();
+
+  const classesStr = status.masteries.join(' + ') || 'Mastery';
+  const overlay = el('div', 'modal-overlay');
+  const box = el('div', 'modal-box');
+  box.style.maxWidth = '520px';
+
+  box.appendChild(el('h3', '', t('modals.refund_skills_confirm_title')));
+
+  const descP = el('p', '', t('modals.refund_skills_confirm_body', {
+    active: status.investedActive,
+    passive: status.investedPassive,
+    classes: classesStr
+  }));
+  descP.style.lineHeight = '1.6';
+  descP.style.whiteSpace = 'pre-line';
+  box.appendChild(descP);
+
+  const actions = el('div', 'modal-actions');
+  const cancelBtn = el('button', 'btn ghost tiny', t('modals.modal_close') || 'Cancel');
+  cancelBtn.onclick = () => overlay.remove();
+  actions.appendChild(cancelBtn);
+
+  const confirmBtn = el('button', 'btn', t('char.refund_skills_btn') || 'Refund Skills');
+  confirmBtn.onclick = () => {
+    overlay.remove();
+    const res = T.refundCharacterSkillPoints(pLocalFile.save);
+    if (res.success) {
+      pLocalFile.dirty = true;
+      markDirty();
+      if (app.render) app.render();
+      toast(t('modals.refund_skills_toast', {
+        active: res.refundedActive,
+        passive: res.refundedPassive
+      }), 'succ');
+    } else {
+      toast('Failed to refund skill points: ' + res.reason, 'err');
+    }
+  };
+  actions.appendChild(confirmBtn);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
 function charMastery(box, pl) {
   T.ensurePointFields(pl);
+
+  const pLocalFile = app.state.files.find(f => f.name.includes('Data_PlayerLocal')) || app.state.files[0];
+  const headerFile = app.state.files.find(f => f.name.includes('Header'));
+  const masteryStatus = pLocalFile ? T.getMasteryStatus(pLocalFile.save, headerFile ? headerFile.save : null) : null;
+
+  // 1. Mastery Status & Operations Action Card
+  const statusCard = el('div', 'card mastery-status-card');
+  const statusHeader = el('div', 'dhead');
+  statusHeader.style.display = 'flex';
+  statusHeader.style.alignItems = 'center';
+  statusHeader.style.justifyContent = 'space-between';
+  statusHeader.style.marginBottom = '12px';
+
+  const statusLeft = el('div', '');
+  const isVi = (app.getLanguage && app.getLanguage() === 'vi');
+  const cardTitle = el('h3', '', t('char.mastery_panel_title') || 'Mastery Selection & Skill Points');
+  cardTitle.style.margin = '0';
+  statusLeft.appendChild(cardTitle);
+
+  let badgeText = masteryStatus && !masteryStatus.isUnblessed
+    ? masteryStatus.masteries.join(' + ')
+    : (t('char.unblessed_badge') || 'Unblessed');
+
+  const badgeSpan = el('span', 'badge-tag' + (masteryStatus && !masteryStatus.isUnblessed ? ' code-tag' : ' badge-gold'), badgeText);
+  badgeSpan.style.fontSize = '12px';
+  badgeSpan.style.padding = '3px 9px';
+  badgeSpan.style.marginLeft = '8px';
+  statusLeft.appendChild(badgeSpan);
+  statusHeader.appendChild(statusLeft);
+
+  // Action Buttons (Reset Mastery & Refund Skills)
+  const btnGroup = el('div', 'arow');
+  btnGroup.style.gap = '8px';
+
+  if (masteryStatus && !masteryStatus.isUnblessed) {
+    const refundSkillsBtn = el('button', 'btn tiny ghost', t('char.refund_skills_btn') || '⚡ Refund Skills');
+    refundSkillsBtn.title = t('char.refund_skills_title') || 'Refund spent skill points without removing masteries';
+    refundSkillsBtn.disabled = (masteryStatus.investedActive + masteryStatus.investedPassive) === 0;
+    refundSkillsBtn.onclick = () => {
+      if (pLocalFile) showRefundSkillsModal(pLocalFile, masteryStatus);
+    };
+    btnGroup.appendChild(refundSkillsBtn);
+
+    const resetMasteryBtn = el('button', 'btn tiny danger-btn', t('char.reset_mastery_btn') || '🔄 Reset Mastery');
+    resetMasteryBtn.title = t('char.reset_mastery_title') || 'Wipe masteries and allow choosing again from scratch';
+    resetMasteryBtn.onclick = () => {
+      if (pLocalFile) showResetMasteryModal(pLocalFile, headerFile, masteryStatus);
+    };
+    btnGroup.appendChild(resetMasteryBtn);
+  }
+
+  statusHeader.appendChild(btnGroup);
+  statusCard.appendChild(statusHeader);
+
+  // Invested Points Summary
+  if (masteryStatus && !masteryStatus.isUnblessed) {
+    const summaryBox = elHtml('div', 'hint small2', t('char.invested_summary', {
+      act: masteryStatus.investedActive,
+      pas: masteryStatus.investedPassive,
+      mas: masteryStatus.investedMastery
+    }) + ` | Total Pool: <b>${masteryStatus.totalActivePool}</b> Active, <b>${masteryStatus.totalPassivePool}</b> Passive, <b>${masteryStatus.totalMasteryPool}</b> Mastery.`);
+    summaryBox.style.marginBottom = '12px';
+    statusCard.appendChild(summaryBox);
+  }
+  box.appendChild(statusCard);
+
+  // 2. Spendable Skill Points Card
   const card = el('div', 'card');
-  card.appendChild(el('h3', '', 'Spendable Skill Points'));
+  card.appendChild(el('h3', '', t('char.spendable_points_title') || 'Spendable Skill Points Pool'));
   const pgrid = el('div', 'grid');
-  const NAMES = { ActivePoints: 'Active Skill Points', PassivePoints: 'Passive Skill Points', MasteryPoints: 'Mastery Points' };
+  const NAMES = {
+    ActivePoints: isVi ? 'Điểm Kỹ năng Chủ động (Active Points)' : 'Active Skill Points',
+    PassivePoints: isVi ? 'Điểm Kỹ năng Bị động (Passive Points)' : 'Passive Skill Points',
+    MasteryPoints: isVi ? 'Điểm Phát triển Tinh thông (Mastery Points)' : 'Mastery Points'
+  };
+
   for (const n of T.POINT_FIELDS) {
     const p = pl.get(n);
     if (!p || !(p.value instanceof G.Scalar)) continue;
     const wrap = el('div', 'fld');
     wrap.appendChild(el('span', 'lbl', NAMES[n] || n));
-    const row = el('div', 'arow');
+    const stepper = el('div', 'num-stepper');
     const inp = el('input');
     inp.type = 'number';
     inp.value = p.value.v;
+    inp.min = 0;
     inp.onchange = () => {
-      p.value.set(Math.round(parseFloat(inp.value) || 0));
+      p.value.set(Math.max(0, Math.round(parseFloat(inp.value) || 0)));
       markDirty();
     };
-    row.appendChild(inp);
+    stepper.appendChild(inp);
     [1, 5, 10].forEach(step => {
-      const b = el('button', 'btn tiny ghost', '+' + step);
+      const b = el('button', 'step-btn', '+' + step);
+      b.type = 'button';
       b.onclick = () => {
-        p.value.set(p.value.v + step);
-        inp.value = p.value.v;
+        const nextVal = Math.max(0, p.value.v + step);
+        p.value.set(nextVal);
+        inp.value = nextVal;
         markDirty();
       };
-      row.appendChild(b);
+      stepper.appendChild(b);
     });
-    wrap.appendChild(row);
+    wrap.appendChild(stepper);
     pgrid.appendChild(wrap);
   }
   card.appendChild(pgrid);
   box.appendChild(card);
 
+  // 3. Render Unblessed Showcase OR Mastery Trees
   const mp = pl.get('Masteries');
-  if (!mp || !(mp.value instanceof G.Arr)) return;
+  const hasMasteries = (mp && mp.value instanceof G.Arr && mp.value.items.length > 0);
+
+  if (!hasMasteries) {
+    // Unblessed Showcase Card
+    const unblessedCard = el('div', 'card unblessed-showcase-card');
+    const uHeader = el('div', 'unblessed-header');
+    uHeader.innerHTML = `<h3 style="color:var(--gold-primary);margin-top:0;">🌟 ${t('char.unblessed_title')}</h3>
+      <p style="line-height:1.6;color:var(--text);">${t('char.unblessed_desc')}</p>`;
+    unblessedCard.appendChild(uHeader);
+
+    const catTitle = el('h4', 'subh', t('char.unblessed_catalog_title') || 'Available Masteries in Titan Quest II:');
+    catTitle.style.marginTop = '14px';
+    unblessedCard.appendChild(catTitle);
+
+    const masteriesCatalog = [
+      { name: 'Earth', vi: 'Đất & Lửa', icon: '🔥', slogan: isVi ? 'Điều khiển sức mạnh của đất và ngọn lửa sâu thẳm!' : 'Bend the earth itself to your will!', desc: isVi ? 'Bậc thầy về phép thuật địa chấn và lửa ngầm, thiêu rụi và nghiền nát kẻ địch.' : 'Masters of Earth harness fire and stone to shape and ignite the battlefield.' },
+      { name: 'Storm', vi: 'Bão tố & Sét', icon: '⚡', slogan: isVi ? 'Phóng ra những luồng sét hủy diệt!' : 'Throw lightning from your fingertips!', desc: isVi ? 'Triệu hồi sấm sét và băng giá trút xuống hàng ngũ kẻ thù.' : 'Masters of Storm control lightning and ice to rain destruction down on foes.' },
+      { name: 'Warfare', vi: 'Chiến trận & Vũ khí', icon: '⚔️', slogan: isVi ? 'Thống trị chiến trường giáp lá cà!' : 'Dominate the battlefield!', desc: isVi ? 'Càn quét tiền tuyến với kỹ năng cận chiến và vũ khí hủy diệt.' : 'Masters of Warfare excel at confronting enemies directly on the frontline.' },
+      { name: 'Rogue', vi: 'Sát thủ & Độc', icon: '🗡️', slogan: isVi ? 'Tấn công chí mạng từ trong bóng tối!' : 'Strike from the shadows!', desc: isVi ? 'Bậc thầy chính xác, né tránh, bẫy và các loại chất độc chí mạng.' : 'Masters of precision, evasion, traps, and deadly poisons.' },
+      { name: 'Forge', vi: 'Rèn & Cơ khí', icon: '🔨', slogan: isVi ? 'Chế tạo những kỳ quan thần thánh!' : 'Craft divine wonders!', desc: isVi ? 'Xây dựng ụ súng, bẫy cơ khí và bộ giáp hộ thể kiên cố.' : 'Build clever contraptions, automated sentries, and unstoppable armors.' },
+      { name: 'Spirit', vi: 'Linh hồn & Cõi âm', icon: '💀', slogan: isVi ? 'Triệu hồi sức mạnh từ thế giới bên kia!' : 'Summon the forces of the Underworld!', desc: isVi ? 'Triệu hồi vong linh, điều khiển pháp thuật cõi chết và hút sinh lực kẻ thù.' : 'Call on shades of the dead, spectral spells, and drain enemy life force.' }
+    ];
+
+    const catalogGrid = el('div', 'mastery-catalog-grid');
+    catalogGrid.style.display = 'grid';
+    catalogGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
+    catalogGrid.style.gap = '12px';
+    catalogGrid.style.marginTop = '10px';
+
+    masteriesCatalog.forEach(mCat => {
+      const mCard = el('div', 'mastery-catalog-card');
+      mCard.style.padding = '12px';
+      mCard.style.background = 'rgba(255, 255, 255, 0.03)';
+      mCard.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+      mCard.style.borderRadius = '6px';
+
+      const mHead = el('div', 'arow');
+      mHead.style.alignItems = 'center';
+      mHead.style.gap = '8px';
+      mHead.style.marginBottom = '6px';
+
+      const iconSpan = el('span', '', mCat.icon);
+      iconSpan.style.fontSize = '18px';
+      const nameStrong = el('strong', '', `${mCat.name} (${mCat.vi})`);
+      nameStrong.style.color = 'var(--gold-primary)';
+      mHead.appendChild(iconSpan);
+      mHead.appendChild(nameStrong);
+      mCard.appendChild(mHead);
+
+      const sloganDiv = el('div', 'hint small2', `<i>"${mCat.slogan}"</i>`);
+      sloganDiv.style.color = 'var(--text-dim)';
+      sloganDiv.style.marginBottom = '6px';
+      mCard.appendChild(sloganDiv);
+
+      const descDiv = el('div', 'hint small2', mCat.desc);
+      mCard.appendChild(descDiv);
+
+      catalogGrid.appendChild(mCard);
+    });
+
+    unblessedCard.appendChild(catalogGrid);
+    box.appendChild(unblessedCard);
+    return;
+  }
+
+  // Mastery Trees
   mp.value.items.forEach(ms => {
     const c = el('div', 'card');
     const nm = T.masteryName(ms);
-    c.appendChild(el('h3', '', 'Mastery Tree: ' + nm));
+    c.appendChild(el('h3', '', t('char.mastery_tree_title', { name: nm }) || ('Mastery Tree: ' + nm)));
     c.appendChild(scalarGrid(ms.body));
-    for (const [key, title] of [['ActiveAbilities', 'Active Abilities'], ['PassiveAbilities', 'Passive Abilities']]) {
+    for (const [key, titleKey, fallback] of [
+      ['ActiveAbilities', 'char.active_abilities_title', 'Active Abilities'],
+      ['PassiveAbilities', 'char.passive_abilities_title', 'Passive Abilities']
+    ]) {
       const ap = ms.body.get(key);
       if (!ap || !(ap.value instanceof G.Arr) || !ap.value.items.length) continue;
 
@@ -501,6 +882,7 @@ function charMastery(box, pl) {
       const validAbilities = ap.value.items.filter(entry => !T.abilityName(entry).toLowerCase().startsWith('cheat'));
       if (!validAbilities.length) continue;
 
+      const title = t(titleKey) || fallback;
       c.appendChild(el('h4', 'subh', title + ' (' + validAbilities.length + ')'));
       validAbilities.forEach((entry, ai) => {
         c.appendChild(abilityRow(entry, nm + '/' + key + '/' + ai));
@@ -518,5 +900,8 @@ app.abilityRow = abilityRow;
 app.charCurrency = charCurrency;
 app.charAttr = charAttr;
 app.charMastery = charMastery;
+app.showResetMasteryModal = showResetMasteryModal;
+app.showRefundSkillsModal = showRefundSkillsModal;
+app.showResetAttributesModal = showResetAttributesModal;
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);
