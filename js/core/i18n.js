@@ -807,18 +807,315 @@ const DICT = {
       direct_save_success: 'Đã lưu trực tiếp {count} file xuống ổ cứng! (Saving.sav đã được tự động xoá)',
       export_zip_success: 'Đã xuất {count} file save thành file nén zip: {filename}'
     }
+  },
+
+  zh: {
+    lang_name: '中文',
+    lang_code: 'zh',
+    header: {
+      title: 'Titan Quest II · 角色与存档编辑器',
+      subtitle: '统一角色视图 · 背包与镶嵌 · 属性 · 专精',
+      profile_label: '角色：{name}（等级 {level}）',
+      profile_switch_title: '点击切换 SaveGames 文件夹中的角色',
+      reload_folder: '重新加载：',
+      reload_folder_title: '从上次选择的文件夹重新加载存档',
+      select_folder: '选择文件夹',
+      select_folder_title: '选择 SaveGames 文件夹以加载并直接覆盖存档',
+      open_files: '打开 .sav 文件',
+      open_files_title: '直接选择 .sav 文件',
+      save_direct: '保存并覆盖',
+      save_direct_title: '直接覆盖存档文件并自动删除 Saving.sav',
+      export_zip: '导出 (.zip)',
+      export_zip_title: '将所有已修改的存档导出为一个 .zip 文件',
+      guide_btn: '❓ 使用指南',
+      guide_btn_title: '查看存档文件与校验和指南',
+      lang_btn: '🌐 中文',
+      lang_btn_title: '切换语言 / Switch language',
+      unsaved_tag: '（{n} 个未保存）'
+    },
+    banner: {
+      guide_title: 'SaveGames 使用指南：',
+      step_1: '拖入 SaveGames 文件夹或 .sav 文件（也可选择文件）',
+      step_2: '编辑属性、技能和装备',
+      step_3: '删除 Saving.sav（使用“保存并覆盖”时会自动删除）',
+      why_saving: '为什么要删除 Saving.sav？'
+    },
+    left: {
+      search_placeholder: '搜索装备、独特物品名称、词缀或属性…',
+      filter_all: '全部物品',
+      filter_weapon: '武器',
+      filter_armor: '护甲',
+      filter_relic: '圣物与护符',
+      filter_currency: '货币与仓库',
+      rarity_all: '全部品质',
+      rarity_magic: '魔法',
+      rarity_infrequent: '非凡',
+      rarity_rare: '稀有',
+      rarity_epic: '史诗',
+      drop_title: '将 SaveGames 文件夹或 .sav 文件拖到这里',
+      drop_sub: '拖放可绕过浏览器对 AppData 的限制 · 自动识别角色',
+      switch_hero: '切换角色 ▾',
+      stat_badge: '📦 {count} 件物品（{groups} 组）',
+      expand_all: '🔽 展开',
+      expand_all_title: '展开所有分组',
+      collapse_all: '🔼 折叠',
+      collapse_all_title: '折叠所有分组',
+      reset_forge: '🔨 重置锻造',
+      reset_forge_title: '清除背包和仓库中所有物品的铁匠锻造记录',
+      grp_profile: '🌟 角色档案与技能',
+      items_count: '{n} 件物品',
+      sections_count: '{n} 个区域',
+      craft_tag_title: '此物品有铁匠锻造记录'
+    },
+    hero: {
+      title: 'Titan Quest II 角色与物品编辑器',
+      desc: '选择 SaveGames 文件夹或 .sav 文件，即可在统一界面中自动识别角色。所有操作均在浏览器本地离线完成。',
+      reload_last: '重新加载上次的文件夹',
+      select_folder: '选择文件夹',
+      select_files: '选择 .sav 文件 (Ctrl+A)',
+      card1_title: '👤 统一角色界面',
+      card1_desc: '无需在多个 .sav 文件标签间切换。装备、背包、核心属性、专精和货币都整合在同一个角色面板中。',
+      card2_title: '⚔️ 易读的物品名称',
+      card2_desc: '物品和独特武器会显示游戏内名称，而不是难以辨认的 Unreal Engine 资源代码。',
+      card3_title: '⚡ 专精与技能树',
+      card3_desc: '自由调整主动、被动和专精点数，并配置技能修正槽与特性槽。',
+      card4_title: '⚠️ Saving.sav 校验清单',
+      card4_desc: 'TQ2 使用 Saving.sav 保存 CRC32 校验和。不匹配时游戏可能恢复 .bak 备份。删除此文件可让游戏读取修改后的存档并重新生成校验清单。'
+    },
+    containers: {
+      m_Equipment: '已装备物品',
+      backpack_main: '背包',
+      backpack_special: '背包 · 特殊栏位',
+      quest_pouch: '任务物品与袋子',
+      personal_stash_1: '个人仓库栏位 1',
+      personal_stash_2: '个人仓库栏位 2',
+      personal_stash_n: '个人仓库 {n}',
+      caravan_materials: '商队 · 材料仓库',
+      caravan_stash_n: '商队 · 仓库栏位 {n}',
+      shared_materials: '共享 · 材料仓库',
+      shared_stash_n: '共享 · 仓库栏位 {n}'
+    },
+    labels: {
+      m_CharacterLevel: '角色等级',
+      m_CurrentLevelProgress: '等级进度 (0.00–1.00)',
+      m_CharacterAP: '未分配属性点',
+      m_AttributePointsMight: '力量（增加物理/穿刺伤害）',
+      m_AttributePointsAgility: '敏捷（增加暴击率/攻击速度）',
+      m_AttributePointsKnowledge: '知识（增加法术伤害/施法速度）',
+      m_AttributePointsVigor: '活力（增加最大生命值/生命回复）',
+      ActivePoints: '主动技能点',
+      PassivePoints: '被动技能点',
+      MasteryPoints: '未分配专精点',
+      InvestedMasteryPoints: '已投入专精点',
+      m_BaseAttackDamage: '基础攻击伤害',
+      m_AttackDamageVariance: '伤害浮动 %',
+      m_AttackSpeedFactor: '攻击速度系数',
+      m_Armor: '护甲值',
+      m_Level: '物品等级',
+      m_RequiredLevel: '需求角色等级',
+      m_Rarity: '稀有度',
+      m_GoldValue: '金币价值',
+      m_MaxStack: '最大堆叠数量',
+      Num: '数量/堆叠数',
+      m_DeathCounter: '死亡次数',
+      m_KillCounter: '击杀怪物数',
+      m_TotalPlayTimeSeconds: '总游戏时间（秒）',
+      Tears: '诸神之泪',
+      Gold: '金币',
+      Obols: '神圣奥博尔'
+    },
+    effects: {
+      stat_modifier: '属性修正',
+      physical_damage_flat: '+ 固定物理伤害',
+      physical_damage: '+ % 物理伤害',
+      attack_speed: '+ % 攻击速度',
+      cast_speed: '+ % 施法速度',
+      move_speed: '+ % 移动速度',
+      cooldown_speed: '+ % 冷却速度',
+      crit_chance: '+ % 暴击率',
+      crit_dmg: '+ % 暴击伤害',
+      attack_cast_speed: '+ % 攻击与施法速度',
+      energy_regen: '+ 能量回复 / 秒',
+      energy_barrier: '+ 能量护盾',
+      less_energy_reserved: '减少 % 能量保留',
+      res_fire: '+ % 火焰抗性',
+      res_cold: '+ % 冰霜抗性',
+      res_lightning: '+ % 闪电抗性',
+      res_poison: '+ % 毒素抗性',
+      res_physical: '+ % 物理抗性',
+      res_impair: '+ % 削弱抗性',
+      res_ailment: '+ % 异常状态抗性',
+      res_all: '+ % 全部抗性',
+      might: '+ 力量',
+      agility: '+ 敏捷',
+      knowledge: '+ 知识',
+      vigor: '+ 活力',
+      max_energy: '+ 最大能量',
+      max_health: '+ 最大生命值',
+      all_damage: '+ % 全部伤害',
+      speed: '+ % 速度',
+      skill_activations: '+ % 技能触发次数',
+      fire_damage: '+ % 火焰伤害',
+      cold_damage: '+ % 冰霜伤害',
+      lightning_damage: '+ % 闪电伤害',
+      poison_damage: '+ % 毒素伤害',
+      pierce_damage: '+ % 穿刺伤害',
+      vitality_damage: '+ % 活力伤害',
+      spell_damage: '+ % 法术伤害',
+      area_damage: '+ % 范围伤害',
+      projectile_damage: '+ % 投射物伤害',
+      strike_damage: '+ % 打击伤害',
+      ailment_chance: '+ % 异常状态几率',
+      ailment_power: '+ % 异常状态强度',
+      potion_instant_recovery: '+ % 即时生命恢复',
+      potion_charges_consumed: '减少药剂消耗次数',
+      potion_effect_duration: '+ % 药剂效果持续时间'
+    },
+    slots: {
+      armor_head: '头盔',
+      armor_torso: '胸甲',
+      armor_leg: '腿甲',
+      armor_arm: '臂甲',
+      armor_shield: '盾牌',
+      weapon_1h_sword: '单手剑',
+      weapon_1h_axe: '单手斧',
+      weapon_1h_club: '单手棍棒',
+      weapon_2h_sword: '双手巨剑',
+      weapon_2h_axe: '双手巨斧',
+      weapon_2h_hammer: '双手战锤',
+      weapon_2h_spear: '长矛',
+      weapon_2h_staff: '法杖',
+      weapon_2h_bow: '弓',
+      jewelry_ring: '戒指',
+      jewelry_amulet: '项链',
+      relic: '圣物/护符',
+      potion: '药剂',
+      unknown: '未知物品'
+    },
+    compat: {
+      potion_only: '药剂词缀仅适用于生命/能量药剂（装备上的此类词缀会被游戏移除）',
+      potion_valid: '药剂词缀（适用于药剂）',
+      movespeed_slot: '移动速度词缀仅适用于腿甲和项链',
+      movespeed_valid: '移动速度（腿甲/项链）',
+      armor_flat_slot: '固定护甲与反击仅适用于护甲和盾牌',
+      armor_flat_valid: '护甲与防御（护甲/盾牌）',
+      skill_passive_slot: '被动技能等级词缀仅适用于头盔、项链和圣物',
+      skill_active_slot: '主动技能容量词缀仅适用于头盔、戒指、项链和圣物',
+      skill_points_slot: '专精被动技能词缀仅适用于头盔、项链和圣物',
+      generic_incompat: '此词缀通常不适用于该装备栏位（{slot}）'
+    },
+    char: {
+      profile_head: '角色档案',
+      sec_attr: '属性与进度',
+      sec_attr_sub: '力量、敏捷、知识、活力与属性点',
+      sec_mastery: '专精与技能树',
+      sec_mastery_sub: 'Warfare / Earth / Rogue / Storm 技能与特性',
+      sec_currency: '货币与材料',
+      sec_currency_sub: '金币、奥博尔、诸神之泪与背包同步',
+      sec_stats: '游戏统计与进度',
+      sec_stats_sub: '击杀与死亡记录',
+      char_name: '角色名称：{name}',
+      configure_slots: '配置栏位（{used}/{total}）',
+      modifier_slot: '修正 {n}',
+      feat_slot: '特性 {n}',
+      tier: '阶级',
+      rank: '等级',
+      cur_card_title: '货币、材料与任务消耗',
+      sync_all_btn: '⚡ 全部同步至背包（修复负数消耗）',
+      sync_all_title: '当背包数量超过已获取总数时，将已获取总数调整为背包数量。',
+      sync_all_toast: '已同步 {count} 种货币！',
+      sync_all_none: '所有货币数量均已同步。',
+      held_in_bag: '背包中：{n}',
+      spent_amount: '已消耗：{n}',
+      calc_spent: '已消耗 = 已获取总数（{earned}）− 背包数量（{bag}）',
+      spent_fixed: '已消耗 = 0（已获取总数与背包数量一致）',
+      spent_negative_fix: '已修复：背包数量超过已获取总数（总数已调整为 {bag}）',
+      sync_row_btn: '同步总数 = 背包',
+      mastery_panel_title: '专精选择与技能点',
+      spendable_points_title: '可用技能点',
+      reset_mastery_btn: '🔄 重置专精（清除职业）',
+      refund_skills_btn: '⚡ 返还技能点（保留职业）',
+      mastery_status_label: '当前职业/专精：',
+      unblessed_title: '尚未选择专精',
+      unblessed_badge: '未选择专精',
+      unblessed_catalog_title: 'Titan Quest II 中可用的专精：',
+      mastery_tree_title: '专精树：{name}',
+      active_abilities_title: '主动技能',
+      passive_abilities_title: '被动技能',
+      attr_card_title: '属性与核心数值',
+      reset_attr_btn: '🔄 重置属性'
+    },
+    item: {
+      select_prompt: '从左侧列表选择物品或角色区域进行编辑。',
+      container_path: '{subtitle} · 容器：{container}',
+      base_template: '基础物品模板',
+      base_stats: '物品基础属性',
+      sockets_title: '镶嵌栏位（宝石与符文）',
+      affixes_title: '物品词缀与修正',
+      add_prefix: '+ 添加前缀',
+      add_suffix: '+ 添加后缀',
+      add_implicit: '+ 添加固有词缀',
+      add_unique: '+ 添加独特效果',
+      delete_affix: '✕ 删除词缀',
+      reset_crafting_btn: '🔨 重置锻造记录',
+      reset_crafting_title: '移除铁匠改造记录，以便在游戏中重新锻造此物品',
+      reset_crafting_toast: '已移除 {name} 的锻造记录！',
+      incompat_title: '词缀栏位不兼容警告',
+      incompat_desc: '此物品上的以下词缀可能因与装备类型（{slot}）不兼容，而在游戏加载时被移除或忽略：',
+      incompat_autofix: '⚡ 自动移除不兼容词缀',
+      autofix_toast: '已从 {name} 移除 {count} 个不兼容词缀。',
+      scale_label: '效果数值/倍率',
+      tier_label: '词缀阶级（0–5）',
+      preview_title: '游戏内提示实时预览'
+    },
+    modals: {
+      profile_modal_title: '选择要编辑的角色',
+      profile_modal_sub: '找到 {count} 个角色档案。选择角色以在一个界面中加载其装备、属性与专精：',
+      profile_active_badge: '★ 当前角色',
+      profile_saved: '保存时间：{time}',
+      profile_playtime: '游戏时间：{time}',
+      profile_files: '文件：{files}',
+      profile_reload_btn: '重新加载角色',
+      profile_edit_btn: '编辑角色',
+      profile_include_shared: '包含共享仓库文件 (PublicCrossCharacterSaveData.sav)',
+      reset_all_confirm_title: '⚠️ 确认重置所有物品的锻造记录？',
+      reset_all_confirm_body: '这将移除当前存档中所有物品的铁匠改造记录，使其可以再次锻造。\n\n确定继续吗？',
+      reset_all_toast: '已重置 {count} 件物品的锻造记录！',
+      reset_all_none: '当前存档中没有带锻造记录的物品。',
+      reset_mastery_confirm_title: '⚠️ 确认重置专精/清除职业？',
+      refund_skills_confirm_title: '⚡ 确认返还技能点？',
+      reset_attr_confirm_title: '⚠️ 确认重置属性点？',
+      modal_close: '关闭'
+    },
+    select: {
+      search_placeholder: '按名称或关键词搜索…',
+      no_results: '没有匹配的物品',
+      all_categories: '全部类别',
+      choose_template: '— 选择基础物品模板 —',
+      choose_affix: '— 选择词缀 —'
+    },
+    log: {
+      header: '活动日志与存档诊断',
+      events_count: '{count} 个事件',
+      scanned_folder: '已扫描 SaveGames：{files} 个文件，{profiles} 个角色档案。',
+      direct_save_success: '已将 {count} 个文件直接保存到磁盘！',
+      export_zip_success: '已将 {count} 个存档导出为压缩文件：{filename}'
+    }
   }
 };
 
-let currentLang = 'vi'; // default to Vietnamese, switchable to English
+const LANGUAGE_CODES = Object.keys(DICT);
+let currentLang = 'vi';
 
 function detectInitialLanguage() {
   if (typeof localStorage !== 'undefined') {
     const saved = localStorage.getItem('tq2_lang');
-    if (saved && (saved === 'en' || saved === 'vi')) return saved;
+    if (saved && LANGUAGE_CODES.includes(saved)) return saved;
   }
   if (typeof navigator !== 'undefined' && navigator.language) {
-    if (navigator.language.toLowerCase().startsWith('vi')) return 'vi';
+    const browserLanguage = navigator.language.toLowerCase();
+    if (browserLanguage.startsWith('vi')) return 'vi';
+    if (browserLanguage.startsWith('zh')) return 'zh';
     return 'en';
   }
   return 'vi';
@@ -831,7 +1128,7 @@ function getLanguage() {
 }
 
 function setLanguage(lang, triggerRender = true) {
-  if (lang !== 'en' && lang !== 'vi') lang = 'vi';
+  if (!LANGUAGE_CODES.includes(lang)) lang = 'vi';
   currentLang = lang;
   if (typeof localStorage !== 'undefined') {
     try { localStorage.setItem('tq2_lang', lang); } catch (e) {}
@@ -847,7 +1144,8 @@ function setLanguage(lang, triggerRender = true) {
 }
 
 function toggleLanguage() {
-  return setLanguage(currentLang === 'vi' ? 'en' : 'vi', true);
+  const currentIndex = LANGUAGE_CODES.indexOf(currentLang);
+  return setLanguage(LANGUAGE_CODES[(currentIndex + 1) % LANGUAGE_CODES.length], true);
 }
 
 function t(path, params = {}) {
@@ -863,9 +1161,9 @@ function t(path, params = {}) {
     }
   }
 
-  // Fallback to English if missing in Vietnamese or vice versa
+  // English is the shared fallback for incomplete locale dictionaries.
   if (val === null || val === undefined) {
-    const fallbackDict = (currentLang === 'vi') ? DICT.en : DICT.vi;
+    const fallbackDict = DICT.en;
     let fbVal = fallbackDict;
     for (const p of parts) {
       if (fbVal && typeof fbVal === 'object' && p in fbVal) {
@@ -889,6 +1187,7 @@ function t(path, params = {}) {
 
 function applyStaticTranslations() {
   if (typeof document === 'undefined') return;
+  if (document.documentElement) document.documentElement.lang = currentLang;
 
   // 1. Text Content via data-i18n
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -932,7 +1231,7 @@ function applyStaticTranslations() {
   const langBtn = document.getElementById('btn-lang-switch');
   const langLabel = document.getElementById('current-lang-label');
   if (langLabel) {
-    langLabel.textContent = currentLang === 'vi' ? 'Tiếng Việt' : 'English';
+    langLabel.textContent = t('lang_name');
   }
   if (langBtn) {
     langBtn.title = t('header.lang_btn_title');
