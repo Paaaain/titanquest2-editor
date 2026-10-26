@@ -21,6 +21,9 @@
 
 ## 🌟 Key Features
 
+### 🌐 Multilingual UI
+- The editor interface supports English, Vietnamese, and Simplified Chinese, detects the browser language, and lets you switch languages from the header.
+
 ### 👤 Single Unified Character View
 - **No file juggling**: Integrates equipped gear (`m_Equipment`), backpack items (`m_Inventories[0]`), personal stash tabs (`m_Inventories[3..4]`), and caravan shared stash into a single dashboard.
 - **Smart profile auto-detection**: Drop your entire `SaveGames` folder, and the editor instantly scans and indexes all your character profiles (e.g. `Player_01`, `Hero_Warrior`, etc.) with their levels and classes.
